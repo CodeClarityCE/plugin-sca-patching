@@ -1,0 +1,12 @@
+{
+    "name": "js-patching",
+    "version": "v0.0.2",
+    "image_name": "ceherzog/plugin-js-patching",
+    "image_version": "0.0.2",
+    "depends_on": [
+        "js-sbom",
+        "js-vuln-finder"
+    ],
+    "description": "A plugin to patch vulnerabilities in a JavaScript project.",
+    "config": {}
+}

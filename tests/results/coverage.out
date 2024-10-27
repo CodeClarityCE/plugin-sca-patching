@@ -1,0 +1,10 @@
+mode: set
+github.com/CodeClarityCE/service-sca-patching/src/exceptionManager/ExceptionManager.go:14.75,19.2 4 1
+github.com/CodeClarityCE/service-sca-patching/src/exceptionManager/ExceptionManager.go:25.76,30.2 4 1
+github.com/CodeClarityCE/service-sca-patching/src/exceptionManager/ExceptionManager.go:33.49,35.2 1 1
+github.com/CodeClarityCE/service-sca-patching/src/exceptionManager/ExceptionManager.go:39.51,41.2 1 1
+github.com/CodeClarityCE/service-sca-patching/src/outputGenerator/OutputGenerator.go:15.197,32.2 16 1
+github.com/CodeClarityCE/service-sca-patching/src/outputGenerator/OutputGenerator.go:37.100,46.29 9 1
+github.com/CodeClarityCE/service-sca-patching/src/outputGenerator/OutputGenerator.go:46.29,51.3 4 1
+github.com/CodeClarityCE/service-sca-patching/src/outputGenerator/OutputGenerator.go:52.2,54.15 3 1
+github.com/CodeClarityCE/service-sca-patching/src/outputGenerator/OutputGenerator.go:59.67,63.2 3 1
