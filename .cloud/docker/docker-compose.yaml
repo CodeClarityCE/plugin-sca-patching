@@ -6,7 +6,7 @@ services:
       target: plugin-dev
       args:
         - PLUGINNAME=js-patching
-    image: ceherzog/js-patching-dev:latest
+    image: codeclarityce/js-patching-dev:latest
     restart: always
     volumes:
       - ../../backend:/codeclarity
