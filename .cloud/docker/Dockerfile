@@ -45,7 +45,7 @@ FROM alpine:3.21.3 AS plugin
 ARG KIND
 ARG USERNAME
 ARG PLUGINNAME
-RUN adduser -D ${USERNAME}
+RUN addgroup -S ${USERNAME} --gid 1001 && adduser -S ${USERNAME} -G ${USERNAME} --uid 1001 -D
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}/${PLUGINNAME}
 COPY --from=plugin-build --chown=codeclarity:codeclarity /codeclarity/${KIND}/${PLUGINNAME}/plugin .
