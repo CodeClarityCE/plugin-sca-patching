@@ -9,7 +9,7 @@ import (
 	"math"
 	"os"
 
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 // SplitOnLastOccurence splits the target string on the last occurrence of the specified delimiter.
