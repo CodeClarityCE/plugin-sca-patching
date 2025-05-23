@@ -233,8 +233,8 @@ func convertNVDItemsToPatchItems(nvdItems []knowledge.NVDItem, name string, vers
 				AffectedDependency: name,
 				AffectedVersion:    version,
 				VulnerabilityId:    nvdItem.NVDId,
-				OSVMatch:           vulnerabilityFinder.OSVVulnerability{},
-				NVDMatch:           vulnerabilityFinder.NVDVulnerability{},
+				OSVMatch:           &vulnerabilityFinder.OSVVulnerability{},
+				NVDMatch:           &vulnerabilityFinder.NVDVulnerability{},
 				Severity:           vulnerabilityFinder.VulnerabilityMatchSeverity{},
 				Weaknesses:         []vulnerabilityFinder.VulnerabilityMatchWeakness{},
 			},
@@ -250,7 +250,7 @@ func (patcher Patcher) patchDirectDependencyVulnerable(dependency string, vulner
 		patch.Unpatchable = append(patch.Unpatchable, vulnerableDependency)
 
 	} else {
-		patched_version, err := getClosestNonVulnerable(vulnerableDependency.Vulnerability.NVDMatch, vulnerableDependency.Vulnerability.OSVMatch)
+		patched_version, err := getClosestNonVulnerable(*vulnerableDependency.Vulnerability.NVDMatch, *vulnerableDependency.Vulnerability.OSVMatch)
 		if err != nil {
 			panic(err)
 		}
