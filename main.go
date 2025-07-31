@@ -145,6 +145,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 		Result:     patching.ConvertOutputToMap(patchingOutput),
 		AnalysisId: dispatcherMessage.AnalysisId,
 		Plugin:     config.Name,
+		CreatedOn:  time.Now(),
 	}
 	_, err = args.codeclarity.NewInsert().Model(&patch_result).Exec(context.Background())
 	if err != nil {
