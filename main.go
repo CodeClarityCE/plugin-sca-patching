@@ -104,7 +104,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 				}
 				sbomKey = sbomKeyUUID
 				break
-			} else if step.Name == "js-vuln-finder" {
+			} else if step.Name == "vuln-finder" {
 				vulnKeyUUID, err := uuid.Parse(step.Result["vulnKey"].(string))
 				if err != nil {
 					panic(err)
