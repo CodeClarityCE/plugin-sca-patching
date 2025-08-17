@@ -4,6 +4,7 @@
     "image_name": "codeclarityce/plugin-js-patching",
     "depends_on": [
         "js-sbom",
+        "php-sbom",
         "vuln-finder"
     ],
     "description": "A plugin to patch vulnerabilities in a JavaScript project.",
