@@ -5,7 +5,6 @@ go 1.24.3
 require (
 	github.com/CodeClarityCE/plugin-sbom-javascript v0.0.18-alpha
 	github.com/CodeClarityCE/plugin-sca-vuln-finder v0.0.15-alpha
-	github.com/CodeClarityCE/utility-amqp-helper v0.0.6-alpha
 	github.com/CodeClarityCE/utility-dbhelper v0.0.8-alpha
 	github.com/CodeClarityCE/utility-node-semver v0.0.5-alpha
 	github.com/CodeClarityCE/utility-types v0.0.11-alpha
@@ -26,7 +25,6 @@ require (
 	github.com/pandatix/go-cvss v0.6.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
-	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/schollz/progressbar/v3 v3.18.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect

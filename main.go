@@ -12,7 +12,7 @@ import (
 	"github.com/CodeClarityCE/plugin-sca-patching/src/types/patching"
 	vulnerabilityFinder "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/types"
 	dbhelper "github.com/CodeClarityCE/utility-dbhelper/helper"
-	"github.com/CodeClarityCE/utility-types/ecosystem"
+	"github.com/CodeClarityCE/utility-types/boilerplates"
 	types_amqp "github.com/CodeClarityCE/utility-types/amqp"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/CodeClarityCE/utility-types/exceptions"
@@ -26,7 +26,7 @@ type JSPatchingAnalysisHandler struct{}
 
 // StartAnalysis implements the AnalysisHandler interface
 func (h *JSPatchingAnalysisHandler) StartAnalysis(
-	databases *ecosystem.PluginDatabases,
+	databases *boilerplates.PluginDatabases,
 	dispatcherMessage types_amqp.DispatcherPluginMessage,
 	config plugin_db.Plugin,
 	analysisDoc codeclarity.Analysis,
@@ -36,7 +36,7 @@ func (h *JSPatchingAnalysisHandler) StartAnalysis(
 
 // main is the entry point of the program.
 func main() {
-	pluginBase, err := ecosystem.NewPluginBase()
+	pluginBase, err := boilerplates.CreatePluginBase()
 	if err != nil {
 		log.Fatalf("Failed to initialize plugin base: %v", err)
 	}
@@ -57,7 +57,7 @@ func main() {
 // - config: Plugin configuration.
 // - analysis_document: Analysis document containing information about the analysis.
 // It returns a map[string]any containing the result of the analysis, the analysis status, and an error if any.
-func startAnalysis(databases *ecosystem.PluginDatabases, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
+func startAnalysis(databases *boilerplates.PluginDatabases, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
 	// Prepare the arguments for the plugin
 
 	// Get sbomKey from previous stage
@@ -130,7 +130,7 @@ func startAnalysis(databases *ecosystem.PluginDatabases, dispatcherMessage types
 	return result, patchingOutput.AnalysisInfo.Status, nil
 }
 
-func getVulns(vulnsKey uuid.UUID, databases *ecosystem.PluginDatabases) (vulnerabilityFinder.Output, error) {
+func getVulns(vulnsKey uuid.UUID, databases *boilerplates.PluginDatabases) (vulnerabilityFinder.Output, error) {
 	res := codeclarity.Result{
 		Id: vulnsKey,
 	}
@@ -144,7 +144,7 @@ func getVulns(vulnsKey uuid.UUID, databases *ecosystem.PluginDatabases) (vulnera
 	return vulns, err
 }
 
-func getSbom(sbomKey uuid.UUID, databases *ecosystem.PluginDatabases) (sbomTypes.Output, error) {
+func getSbom(sbomKey uuid.UUID, databases *boilerplates.PluginDatabases) (sbomTypes.Output, error) {
 	res := codeclarity.Result{
 		Id: sbomKey,
 	}
