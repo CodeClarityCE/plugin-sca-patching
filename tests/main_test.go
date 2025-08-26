@@ -1,24 +1,44 @@
 package main
 
 import (
-	"database/sql"
+	"os"
 	"testing"
 	"time"
 
 	patching "github.com/CodeClarityCE/plugin-sca-patching/src"
-	dbhelper "github.com/CodeClarityCE/utility-dbhelper/helper"
+	"github.com/CodeClarityCE/utility-boilerplates"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/stretchr/testify/assert"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 )
 
+// setupTestEnvironment sets up the necessary environment for testing
+func setupTestEnvironment(t *testing.T) (*boilerplates.PluginBase, func()) {
+	// Set test database environment
+	os.Setenv("PG_DB_HOST", "127.0.0.1")
+	os.Setenv("PG_DB_PORT", "6432")
+	os.Setenv("PG_DB_USER", "postgres")
+	os.Setenv("PG_DB_PASSWORD", "!ChangeMe!")
+
+	// Create PluginBase for testing
+	pluginBase, err := boilerplates.CreatePluginBase()
+	if err != nil {
+		t.Skipf("Skipping test due to database connection error: %v", err)
+		return nil, func() {}
+	}
+
+	cleanup := func() {
+		pluginBase.Close()
+	}
+
+	return pluginBase, cleanup
+}
+
 func TestCreateNPMv1(t *testing.T) {
-	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:6432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
+	pluginBase, cleanup := setupTestEnvironment(t)
+	if pluginBase == nil {
+		return // Test was skipped
+	}
+	defer cleanup()
 
 	sbom, err := getSBOM("../../js-sbom/tests/npmv1")
 	if err != nil {
@@ -30,7 +50,7 @@ func TestCreateNPMv1(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(db_knowledge, sbom, vulns, "JS", time.Now())
+	out := patching.Start(pluginBase.DB.Knowledge, sbom, vulns, "JS", time.Now())
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -39,10 +59,11 @@ func TestCreateNPMv1(t *testing.T) {
 }
 
 func TestCreateNPMv2(t *testing.T) {
-	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:6432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
+	pluginBase, cleanup := setupTestEnvironment(t)
+	if pluginBase == nil {
+		return // Test was skipped
+	}
+	defer cleanup()
 
 	sbom, err := getSBOM("../../js-sbom/tests/npmv2")
 	if err != nil {
@@ -54,7 +75,7 @@ func TestCreateNPMv2(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(db_knowledge, sbom, vulns, "JS", time.Now())
+	out := patching.Start(pluginBase.DB.Knowledge, sbom, vulns, "JS", time.Now())
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -63,10 +84,11 @@ func TestCreateNPMv2(t *testing.T) {
 }
 
 func TestCreateYarnv1(t *testing.T) {
-	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:6432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
+	pluginBase, cleanup := setupTestEnvironment(t)
+	if pluginBase == nil {
+		return // Test was skipped
+	}
+	defer cleanup()
 
 	sbom, err := getSBOM("../../js-sbom/tests/yarnv1")
 	if err != nil {
@@ -78,7 +100,7 @@ func TestCreateYarnv1(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(db_knowledge, sbom, vulns, "JS", time.Now())
+	out := patching.Start(pluginBase.DB.Knowledge, sbom, vulns, "JS", time.Now())
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -87,10 +109,11 @@ func TestCreateYarnv1(t *testing.T) {
 }
 
 func TestCreateYarnv2(t *testing.T) {
-	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:6432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
+	pluginBase, cleanup := setupTestEnvironment(t)
+	if pluginBase == nil {
+		return // Test was skipped
+	}
+	defer cleanup()
 
 	sbom, err := getSBOM("../../js-sbom/tests/yarnv2")
 	if err != nil {
@@ -102,7 +125,7 @@ func TestCreateYarnv2(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(db_knowledge, sbom, vulns, "JS", time.Now())
+	out := patching.Start(pluginBase.DB.Knowledge, sbom, vulns, "JS", time.Now())
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -111,10 +134,11 @@ func TestCreateYarnv2(t *testing.T) {
 }
 
 func TestCreateYarnv3(t *testing.T) {
-	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:6432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
+	pluginBase, cleanup := setupTestEnvironment(t)
+	if pluginBase == nil {
+		return // Test was skipped
+	}
+	defer cleanup()
 
 	sbom, err := getSBOM("../../js-sbom/tests/yarnv3")
 	if err != nil {
@@ -126,7 +150,7 @@ func TestCreateYarnv3(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(db_knowledge, sbom, vulns, "JS", time.Now())
+	out := patching.Start(pluginBase.DB.Knowledge, sbom, vulns, "JS", time.Now())
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -135,10 +159,11 @@ func TestCreateYarnv3(t *testing.T) {
 }
 
 func TestCreateYarnv4(t *testing.T) {
-	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:6432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
+	pluginBase, cleanup := setupTestEnvironment(t)
+	if pluginBase == nil {
+		return // Test was skipped
+	}
+	defer cleanup()
 
 	sbom, err := getSBOM("../../js-sbom/tests/yarnv3")
 	if err != nil {
@@ -150,7 +175,7 @@ func TestCreateYarnv4(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(db_knowledge, sbom, vulns, "JS", time.Now())
+	out := patching.Start(pluginBase.DB.Knowledge, sbom, vulns, "JS", time.Now())
 
 	// Assert the expected values
 	assert.NotNil(t, out)

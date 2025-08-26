@@ -2,18 +2,16 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	sbomTypes "github.com/CodeClarityCE/plugin-sbom-javascript/src/types/sbom/js"
 	plugin "github.com/CodeClarityCE/plugin-sca-patching/src"
 	"github.com/CodeClarityCE/plugin-sca-patching/src/types/patching"
 	vulnerabilityFinder "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/types"
-	amqp_helper "github.com/CodeClarityCE/utility-amqp-helper"
+	"github.com/CodeClarityCE/utility-boilerplates"
 	dbhelper "github.com/CodeClarityCE/utility-dbhelper/helper"
 	types_amqp "github.com/CodeClarityCE/utility-types/amqp"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
@@ -21,65 +19,35 @@ import (
 	exceptionManager "github.com/CodeClarityCE/utility-types/exceptions"
 	plugin_db "github.com/CodeClarityCE/utility-types/plugin_db"
 	"github.com/google/uuid"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 )
 
-// Define the arguments you want to pass to the callback function
-type Arguments struct {
-	codeclarity *bun.DB
-	knowledge   *bun.DB
+// JSPatchingAnalysisHandler implements the AnalysisHandler interface
+type JSPatchingAnalysisHandler struct{}
+
+// StartAnalysis implements the AnalysisHandler interface
+func (h *JSPatchingAnalysisHandler) StartAnalysis(
+	databases *boilerplates.PluginDatabases,
+	dispatcherMessage types_amqp.DispatcherPluginMessage,
+	config plugin_db.Plugin,
+	analysisDoc codeclarity.Analysis,
+) (map[string]any, codeclarity.AnalysisStatus, error) {
+	return startAnalysis(databases, dispatcherMessage, config, analysisDoc)
 }
 
 // main is the entry point of the program.
-// It reads the configuration, initializes the necessary databases and graph,
-// and starts listening on the queue.
 func main() {
-	config, err := readConfig()
+	pluginBase, err := boilerplates.CreatePluginBase()
 	if err != nil {
-		log.Printf("%v", err)
-		return
+		log.Fatalf("Failed to initialize plugin base: %v", err)
 	}
+	defer pluginBase.Close()
 
-	host := os.Getenv("PG_DB_HOST")
-	if host == "" {
-		log.Printf("PG_DB_HOST is not set")
-		return
+	// Start the plugin with our analysis handler
+	handler := &JSPatchingAnalysisHandler{}
+	err = pluginBase.Listen(handler)
+	if err != nil {
+		log.Fatalf("Failed to start plugin: %v", err)
 	}
-	port := os.Getenv("PG_DB_PORT")
-	if port == "" {
-		log.Printf("PG_DB_PORT is not set")
-		return
-	}
-	user := os.Getenv("PG_DB_USER")
-	if user == "" {
-		log.Printf("PG_DB_USER is not set")
-		return
-	}
-	password := os.Getenv("PG_DB_PASSWORD")
-	if password == "" {
-		log.Printf("PG_DB_PASSWORD is not set")
-		return
-	}
-
-	dsn_knowledge := "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
-	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge), pgdriver.WithTimeout(50*time.Second)))
-	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
-	defer db_knowledge.Close()
-
-	dsn := "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + dbhelper.Config.Database.Results + "?sslmode=disable"
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn), pgdriver.WithTimeout(50*time.Second)))
-	db_codeclarity := bun.NewDB(sqldb, pgdialect.New())
-	defer db_codeclarity.Close()
-
-	args := Arguments{
-		codeclarity: db_codeclarity,
-		knowledge:   db_knowledge,
-	}
-
-	// Start listening on the queue
-	amqp_helper.Listen("dispatcher_"+config.Name, callback, args, config)
 }
 
 // startAnalysis is a function that performs the analysis for a specific plugin.
@@ -89,7 +57,7 @@ func main() {
 // - config: Plugin configuration.
 // - analysis_document: Analysis document containing information about the analysis.
 // It returns a map[string]any containing the result of the analysis, the analysis status, and an error if any.
-func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
+func startAnalysis(databases *boilerplates.PluginDatabases, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
 	// Prepare the arguments for the plugin
 
 	// Get sbomKey from previous stage
@@ -104,7 +72,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 				}
 				sbomKey = sbomKeyUUID
 				break
-			} else if step.Name == "js-vuln-finder" {
+			} else if step.Name == "vuln-finder" {
 				vulnKeyUUID, err := uuid.Parse(step.Result["vulnKey"].(string))
 				if err != nil {
 					panic(err)
@@ -120,7 +88,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 	start := time.Now()
 
 	// Retrieve the sbom from the previous stage
-	sbom, err := getSbom(sbomKey, args)
+	sbom, err := getSbom(sbomKey, databases)
 	if err != nil {
 		exceptionManager.AddError(
 			"", exceptions.GENERIC_ERROR,
@@ -130,7 +98,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 	}
 
 	// Retrieve the vulnerabilities from the previous stage
-	vulns, err := getVulns(vulnKey, args)
+	vulns, err := getVulns(vulnKey, databases)
 	if err != nil {
 		exceptionManager.AddError(
 			"", exceptions.GENERIC_ERROR,
@@ -139,7 +107,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 		return nil, codeclarity.FAILURE, err
 	}
 
-	patchingOutput = plugin.Start(args.knowledge, sbom, vulns, dbhelper.Config.Collection.JS, start)
+	patchingOutput = plugin.Start(databases.Knowledge, sbom, vulns, dbhelper.Config.Collection.JS, start)
 
 	patch_result := codeclarity.Result{
 		Result:     patching.ConvertOutputToMap(patchingOutput),
@@ -147,7 +115,7 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 		Plugin:     config.Name,
 		CreatedOn:  time.Now(),
 	}
-	_, err = args.codeclarity.NewInsert().Model(&patch_result).Exec(context.Background())
+	_, err = databases.Codeclarity.NewInsert().Model(&patch_result).Exec(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -162,11 +130,11 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 	return result, patchingOutput.AnalysisInfo.Status, nil
 }
 
-func getVulns(vulnsKey uuid.UUID, args Arguments) (vulnerabilityFinder.Output, error) {
+func getVulns(vulnsKey uuid.UUID, databases *boilerplates.PluginDatabases) (vulnerabilityFinder.Output, error) {
 	res := codeclarity.Result{
 		Id: vulnsKey,
 	}
-	err := args.codeclarity.NewSelect().Model(&res).Where("id = ?", vulnsKey).Scan(context.Background())
+	err := databases.Codeclarity.NewSelect().Model(&res).Where("id = ?", vulnsKey).Scan(context.Background())
 	if err != nil {
 		panic(err)
 	}
@@ -176,11 +144,11 @@ func getVulns(vulnsKey uuid.UUID, args Arguments) (vulnerabilityFinder.Output, e
 	return vulns, err
 }
 
-func getSbom(sbomKey uuid.UUID, args Arguments) (sbomTypes.Output, error) {
+func getSbom(sbomKey uuid.UUID, databases *boilerplates.PluginDatabases) (sbomTypes.Output, error) {
 	res := codeclarity.Result{
 		Id: sbomKey,
 	}
-	err := args.codeclarity.NewSelect().Model(&res).Where("id = ?", sbomKey).Scan(context.Background())
+	err := databases.Codeclarity.NewSelect().Model(&res).Where("id = ?", sbomKey).Scan(context.Background())
 	if err != nil {
 		panic(err)
 	}
