@@ -6,8 +6,8 @@ import (
 	"time"
 
 	patching "github.com/CodeClarityCE/plugin-sca-patching/src"
-	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/CodeClarityCE/utility-types/boilerplates"
+	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/stretchr/testify/assert"
 )
 
