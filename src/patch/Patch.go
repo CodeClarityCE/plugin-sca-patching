@@ -176,6 +176,7 @@ func (patcher Patcher) lookForVulnerabilities(transitiveProdDependencies []strin
 	var wg sync.WaitGroup
 	maxGoroutines := 50
 	guard := make(chan struct{}, maxGoroutines)
+	mutex := sync.Mutex{}
 
 	for _, dependency := range transitiveProdDependencies {
 		wg.Add(1)
@@ -190,9 +191,11 @@ func (patcher Patcher) lookForVulnerabilities(transitiveProdDependencies []strin
 				version = splited_dependency[2]
 			}
 			nvdScore, foundVulnerabilities, _ := patcher.GetNVDVulnerabilities(name, version)
+			mutex.Lock()
 			totalScore += nvdScore
 			vulnerabilitiesConverted := convertNVDItemsToPatchItems(foundVulnerabilities, name, version)
 			vulnerabilities = append(vulnerabilities, vulnerabilitiesConverted...)
+			mutex.Unlock()
 			<-guard
 		}(&wg, dependency)
 	}
@@ -210,12 +213,15 @@ func (patcher Patcher) lookForVulnerabilities(transitiveProdDependencies []strin
 				version = splited_dependency[2]
 			}
 			nvdScore, foundVulnerabilities, _ := patcher.GetNVDVulnerabilities(name, version)
+			mutex.Lock()
 			totalScore += nvdScore
 			vulnerabilitiesConverted := convertNVDItemsToPatchItems(foundVulnerabilities, name, version)
 			vulnerabilities = append(vulnerabilities, vulnerabilitiesConverted...)
+			mutex.Unlock()
 			<-guard
 		}(&wg, dependency)
 	}
+	wg.Wait()
 
 	return totalScore, vulnerabilities, nil
 }
