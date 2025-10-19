@@ -3,20 +3,20 @@ module github.com/CodeClarityCE/plugin-sca-patching
 go 1.24.3
 
 require (
-	github.com/CodeClarityCE/plugin-sbom-javascript v0.0.20-alpha
-	github.com/CodeClarityCE/plugin-sca-vuln-finder v0.0.20-alpha
-	github.com/CodeClarityCE/utility-boilerplates v0.0.2-alpha
-	github.com/CodeClarityCE/utility-dbhelper v0.0.10-alpha
+	github.com/CodeClarityCE/plugin-sbom-javascript v0.0.21-alpha
+	github.com/CodeClarityCE/plugin-sca-vuln-finder v0.0.21-alpha
+	github.com/CodeClarityCE/utility-boilerplates v0.0.3-alpha
+	github.com/CodeClarityCE/utility-dbhelper v0.0.11-alpha
 	github.com/CodeClarityCE/utility-node-semver v0.0.6-alpha
-	github.com/CodeClarityCE/utility-types v0.0.13-alpha
+	github.com/CodeClarityCE/utility-types v0.0.14-alpha
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.11.1
 	github.com/uptrace/bun v1.2.15
 )
 
 require (
-	github.com/CodeClarityCE/service-knowledge v0.0.20-alpha // indirect
-	github.com/CodeClarityCE/utility-amqp-helper v0.0.8-alpha // indirect
+	github.com/CodeClarityCE/service-knowledge v0.0.21-alpha // indirect
+	github.com/CodeClarityCE/utility-amqp-helper v0.0.9-alpha // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
