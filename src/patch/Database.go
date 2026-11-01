@@ -145,23 +145,23 @@ func (patcher Patcher) GetNVDVulnerabilities(dependencyName string, dependencyVe
 
 	ctx := context.Background()
 
-	// TODO avoid SQL injection
+	// Use jsonpath variables ($name) to safely parameterize the product filter
 	rows, err := patcher.Knowledge.QueryContext(ctx, `
-		WITH preselect AS(SELECT *, jsonb_path_query("affectedFlattened", '$[*].criteriaDict.product ?(@=="`+dependencyName+`")')
-		FROM nvd)
-
+		WITH preselect AS(
+			SELECT *, jsonb_path_query("affectedFlattened", '$[*].criteriaDict.product ?(@==$name)', jsonb_build_object('name', $1::text))
+			FROM nvd
+		)
 		SELECT DISTINCT id, nvd_id, "sourceIdentifier", published, "lastModified", "vulnStatus", descriptions, metrics, weaknesses, configurations, "affectedFlattened", affected, "references"
 		FROM preselect
 		WHERE "vulnStatus" = 'Analyzed' OR "vulnStatus" = 'Modified'
-	`)
+	`, dependencyName)
 	if err != nil {
-		panic(err)
+		return 0, nil, fmt.Errorf("failed to query NVD vulnerabilities: %w", err)
 	}
 
 	err = patcher.Knowledge.ScanRows(ctx, rows, &vulnerabilities)
-
 	if err != nil {
-		panic(err)
+		return 0, nil, fmt.Errorf("failed to scan NVD vulnerabilities: %w", err)
 	}
 
 	vulnerabilityCount := 0

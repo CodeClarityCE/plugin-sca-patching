@@ -14,11 +14,11 @@ type Dependency struct {
 	OriginalConstraint       string                          `json:"original_constraint"`
 	PotentialBreakingChanges bool                            `json:"potential_breaking_changes"`
 	PatchType                patching.PatchType              `json:"patch_type"`
-	SeverityDist             patching.SeverityDist           `json:"severity_dist,omitempty"`
-	AfterUpgradeSeverityDist patching.SeverityDist           `json:"after_upgrade_severity_dist,omitempty"`
-	FullPatch                FullyPatchedVersionInternal     `json:"full_patch,omitempty"`
-	PartialPatch             PartiallyPatchedVersionInternal `json:"partial_patch,omitempty"`
-	NonePatch                UnPatchedVersionInternal        `json:"none_patch,omitempty"`
+	SeverityDist             patching.SeverityDist           `json:"severity_dist"`
+	AfterUpgradeSeverityDist patching.SeverityDist           `json:"after_upgrade_severity_dist"`
+	FullPatch                FullyPatchedVersionInternal     `json:"full_patch"`
+	PartialPatch             PartiallyPatchedVersionInternal `json:"partial_patch"`
+	NonePatch                UnPatchedVersionInternal        `json:"none_patch"`
 }
 
 type VulnerabilityComparisonInfo struct {

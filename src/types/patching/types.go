@@ -78,13 +78,13 @@ type Output struct {
 	AnalysisInfo AnalysisInfo         `json:"analysis_info"`
 }
 
-func ConvertOutputToMap(output Output) map[string]interface{} {
-	result := make(map[string]interface{})
+func ConvertOutputToMap(output Output) map[string]any {
+	result := make(map[string]any)
 
 	// Convert workspaces to map
-	workspaces := make(map[string]interface{})
+	workspaces := make(map[string]any)
 	for workspaceName, workspaceData := range output.WorkSpaces {
-		workspace := make(map[string]interface{})
+		workspace := make(map[string]any)
 		workspace["patches"] = workspaceData.Patches
 		workspace["dev_patches"] = workspaceData.DevPatches
 		workspaces[workspaceName] = workspace

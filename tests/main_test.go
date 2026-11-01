@@ -184,7 +184,7 @@ func TestCreateYarnv4(t *testing.T) {
 }
 
 // func BenchmarkBigCreate(b *testing.B) {
-// 	dsn_knowledge := "postgres://postgres:!ChangeMe!@127.0.0.1:5432/" + dbhelper.Config.Database.Knowledge + "?sslmode=disable"
+// 	dsn_knowledge := dbhelper.BuildDSN("postgres", os.Getenv("PG_DB_PASSWORD"), "127.0.0.1", "5432", dbhelper.Config.Database.Knowledge)
 // 	sqldb_knowledge := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn_knowledge)))
 // 	db_knowledge := bun.NewDB(sqldb_knowledge, pgdialect.New())
 // 	defer db_knowledge.Close()

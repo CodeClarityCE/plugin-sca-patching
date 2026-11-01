@@ -145,7 +145,7 @@ func ReadFile(filePath string) ([]byte, error) {
 }
 
 type MapItem struct {
-	Key, Value interface{}
+	Key, Value any
 }
 
 type MapSlice []MapItem
