@@ -1,0 +1,63 @@
+{
+ "analysis_info": {
+  "errors": [],
+  "extra": {
+   "import_path_seperator": " > ",
+   "lock_file_version": 2,
+   "version_seperator": "@"
+  },
+  "package_manager": "NPM",
+  "paths": {
+   "lock_file_path": "/private/org/projects/project/main/package-lock.json",
+   "package_file_path": "/private/org/projects/project/main/package.json",
+   "relative_lock_file_path": "main/package-lock.json",
+   "relative_package_file_path": "main/package.json",
+   "work_space_package_file_paths": {
+    ".": "/private/org/projects/project/main/package.json"
+   }
+  },
+  "project_name": "audit-clean-js",
+  "status": "success",
+  "time": {
+   "analysis_delta_time": 0.016810333,
+   "analysis_end_time": "2026-11-14 20:21:01.590322092 +0000 UTC",
+   "analysis_start_time": "2026-11-14 20:21:01.573511967 +0000 UTC"
+  },
+  "working_directory": "/private/org/projects/project/main",
+  "workspaces": {
+   "default_workspace_name": ".",
+   "self_managed_workspace_name": "..",
+   "work_spaces_used": false
+  }
+ },
+ "workspaces": {
+  ".": {
+   "dependencies": {
+    "is-number": {
+     "7.0.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": true,
+      "Key": "is-number@7.0.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": false
+     }
+    }
+   },
+   "start": {
+    "dependencies": [
+     {
+      "constraint": "7.0.0",
+      "name": "is-number",
+      "version": "7.0.0"
+     }
+    ],
+    "dev_dependencies": null
+   }
+  }
+ }
+}

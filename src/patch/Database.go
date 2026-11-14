@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/CodeClarityCE/plugin-sca-vuln-finder/src/repository"
+	"github.com/CodeClarityCE/plugin-sca-vuln-finder/src/repository/nvd"
 	matcher "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/vulnerabilityMatcher"
 	nvdMatcher "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/vulnerabilityMatcher/nvd"
 	semver "github.com/CodeClarityCE/utility-node-semver"
@@ -12,6 +14,9 @@ import (
 	knowledge "github.com/CodeClarityCE/utility-types/knowledge_db"
 	"github.com/uptrace/bun"
 )
+
+// Package names are unique per language in the knowledge package table.
+const packageLanguage = "javascript"
 
 // This function retrieves possible versions of a dependency based on the provided parameters.
 func (patcher Patcher) getTransitiveDependencies(dependencyName string, dependencyVersion string) ([]string, []string, error) {
@@ -21,10 +26,11 @@ func (patcher Patcher) getTransitiveDependencies(dependencyName string, dependen
 	err := patcher.Knowledge.RunInTx(context.Background(), nil, func(ctx context.Context, tx bun.Tx) error {
 		return tx.NewSelect().
 			Model(version).
-			ColumnExpr("pv.dependencies, pv.dev_dependencies").
-			Join("JOIN package AS p ON p.id = pv.\"packageId\"").
+			ColumnExpr("v.dependencies, v.dev_dependencies").
+			Join("JOIN package AS p ON p.id = v.package_id").
 			Where("p.name = ?", dependencyName).
-			Where("pv.version = ?", dependencyVersion).
+			Where("p.language = ?", packageLanguage).
+			Where("v.version = ?", dependencyVersion).
 			Scan(context.Background())
 	})
 
@@ -94,9 +100,10 @@ func (patcher Patcher) getPossibleVersions(dependencyName string, dependencyVers
 	err := patcher.Knowledge.RunInTx(context.Background(), nil, func(ctx context.Context, tx bun.Tx) error {
 		return tx.NewSelect().
 			Model(&versions).
-			ColumnExpr("pv.version, pv.id, pv.\"packageId\"").
-			Join("JOIN package AS p ON p.id = pv.\"packageId\"").
+			ColumnExpr("v.version, v.id, v.package_id").
+			Join("JOIN package AS p ON p.id = v.package_id").
 			Where("p.name = ?", dependencyName).
+			Where("p.language = ?", packageLanguage).
 			Scan(context.Background())
 	})
 
@@ -141,38 +148,28 @@ func (patcher Patcher) getPossibleVersions(dependencyName string, dependencyVers
 }
 
 func (patcher Patcher) GetNVDVulnerabilities(dependencyName string, dependencyVersion string) (int, []knowledge.NVDItem, error) {
-	vulnerabilities := []knowledge.NVDItem{}
-
-	ctx := context.Background()
-
-	// Use jsonpath variables ($name) to safely parameterize the product filter
-	rows, err := patcher.Knowledge.QueryContext(ctx, `
-		WITH preselect AS(
-			SELECT *, jsonb_path_query("affectedFlattened", '$[*].criteriaDict.product ?(@==$name)', jsonb_build_object('name', $1::text))
-			FROM nvd
-		)
-		SELECT DISTINCT id, nvd_id, "sourceIdentifier", published, "lastModified", "vulnStatus", descriptions, metrics, weaknesses, configurations, "affectedFlattened", affected, "references"
-		FROM preselect
-		WHERE "vulnStatus" = 'Analyzed' OR "vulnStatus" = 'Modified'
-	`, dependencyName)
+	// Same lookup and filters as vuln-finder, so both plugins see the same CVEs.
+	candidates, err := nvd.GetVulnsByDepName(dependencyName, patcher.Knowledge)
 	if err != nil {
 		return 0, nil, fmt.Errorf("failed to query NVD vulnerabilities: %w", err)
 	}
-
-	err = patcher.Knowledge.ScanRows(ctx, rows, &vulnerabilities)
-	if err != nil {
-		return 0, nil, fmt.Errorf("failed to scan NVD vulnerabilities: %w", err)
+	vulnerabilities := []knowledge.NVDItem{}
+	for _, vulnerability := range candidates {
+		if repository.ActiveAsOf(vulnerability.RetiredAt, nil) {
+			vulnerabilities = append(vulnerabilities, vulnerability)
+		}
 	}
 
 	vulnerabilityCount := 0
-	semver, err := semver.ParseSemver(dependencyVersion)
 	vulnerabilitiesAffectingVersion := []knowledge.NVDItem{}
+	semver, err := semver.ParseSemver(dependencyVersion)
+	if err != nil {
+		// A version we cannot parse cannot be matched against ranges.
+		return 0, vulnerabilitiesAffectingVersion, nil
+	}
 
 	for _, vulnerability := range vulnerabilities {
 		affectedUniform := nvdMatcher.NormalizeAffectedVersions(dependencyName, vulnerability.Affected, patcher.Knowledge)
-		if err != nil {
-			continue
-		}
 		matches, _ := matcher.MatchRange(affectedUniform, semver)
 		if matches {
 			vulnerabilityCount++

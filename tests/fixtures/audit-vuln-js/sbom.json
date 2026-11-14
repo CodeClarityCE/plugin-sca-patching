@@ -1,0 +1,1507 @@
+{
+ "analysis_info": {
+  "errors": [],
+  "extra": {
+   "import_path_seperator": " > ",
+   "lock_file_version": 2,
+   "version_seperator": "@"
+  },
+  "package_manager": "NPM",
+  "paths": {
+   "lock_file_path": "/private/org/projects/project/main/package-lock.json",
+   "package_file_path": "/private/org/projects/project/main/package.json",
+   "relative_lock_file_path": "main/package-lock.json",
+   "relative_package_file_path": "main/package.json",
+   "work_space_package_file_paths": {
+    ".": "/private/org/projects/project/main/package.json"
+   }
+  },
+  "project_name": "audit-vuln-js",
+  "status": "success",
+  "time": {
+   "analysis_delta_time": 0.01458225,
+   "analysis_end_time": "2026-11-14 20:21:01.534152884 +0000 UTC",
+   "analysis_start_time": "2026-11-14 20:21:01.519570717 +0000 UTC"
+  },
+  "working_directory": "/private/org/projects/project/main",
+  "workspaces": {
+   "default_workspace_name": ".",
+   "self_managed_workspace_name": "..",
+   "work_spaces_used": false
+  }
+ },
+ "workspaces": {
+  ".": {
+   "dependencies": {
+    "accepts": {
+     "1.3.8": {
+      "Bundled": false,
+      "Dependencies": {
+       "mime-types": "2.1.35",
+       "negotiator": "0.6.3"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "accepts@1.3.8",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "mime-types": "~2.1.34",
+       "negotiator": "0.6.3"
+      },
+      "Transitive": true
+     }
+    },
+    "array-flatten": {
+     "1.1.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "array-flatten@1.1.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "axios": {
+     "0.18.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "follow-redirects": "1.16.3",
+       "is-buffer": "1.1.6"
+      },
+      "Dev": false,
+      "Direct": true,
+      "Key": "axios@0.18.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "follow-redirects": "^1.3.0",
+       "is-buffer": "^1.1.5"
+      },
+      "Transitive": false
+     }
+    },
+    "balanced-match": {
+     "1.0.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "balanced-match@1.0.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "body-parser": {
+     "1.18.2": {
+      "Bundled": false,
+      "Dependencies": {
+       "bytes": "3.0.0",
+       "content-type": "1.0.5",
+       "debug": "2.6.9",
+       "depd": "1.1.2",
+       "http-errors": "1.6.3",
+       "iconv-lite": "0.4.19",
+       "on-finished": "2.3.0",
+       "qs": "6.5.1",
+       "raw-body": "2.3.2",
+       "type-is": "1.6.18"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "body-parser@1.18.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "bytes": "3.0.0",
+       "content-type": "~1.0.4",
+       "debug": "2.6.9",
+       "depd": "~1.1.1",
+       "http-errors": "~1.6.2",
+       "iconv-lite": "0.4.19",
+       "on-finished": "~2.3.0",
+       "qs": "6.5.1",
+       "raw-body": "2.3.2",
+       "type-is": "~1.6.15"
+      },
+      "Transitive": true
+     }
+    },
+    "brace-expansion": {
+     "1.1.22": {
+      "Bundled": false,
+      "Dependencies": {
+       "balanced-match": "1.0.2",
+       "concat-map": "0.0.1"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "brace-expansion@1.1.22",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "balanced-match": "^1.0.0",
+       "concat-map": "0.0.1"
+      },
+      "Transitive": true
+     }
+    },
+    "browser-stdout": {
+     "1.3.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "browser-stdout@1.3.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "bytes": {
+     "3.0.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "bytes@3.0.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "commander": {
+     "2.15.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "commander@2.15.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "concat-map": {
+     "0.0.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "concat-map@0.0.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "content-disposition": {
+     "0.5.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "content-disposition@0.5.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "content-type": {
+     "1.0.5": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "content-type@1.0.5",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "cookie": {
+     "0.3.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "cookie@0.3.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "cookie-signature": {
+     "1.0.6": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "cookie-signature@1.0.6",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "debug": {
+     "2.6.9": {
+      "Bundled": false,
+      "Dependencies": {
+       "ms": "2.0.0"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "debug@2.6.9",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "ms": "2.0.0"
+      },
+      "Transitive": true
+     },
+     "3.1.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "ms": "2.0.0"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "debug@3.1.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "ms": "2.0.0"
+      },
+      "Transitive": true
+     }
+    },
+    "depd": {
+     "1.1.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "depd@1.1.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     },
+     "1.1.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "depd@1.1.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "destroy": {
+     "1.0.4": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "destroy@1.0.4",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "diff": {
+     "3.5.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "diff@3.5.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "ee-first": {
+     "1.1.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "ee-first@1.1.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "encodeurl": {
+     "1.0.4": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "encodeurl@1.0.4",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "escape-html": {
+     "1.0.3": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "escape-html@1.0.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "escape-string-regexp": {
+     "1.0.5": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "escape-string-regexp@1.0.5",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "etag": {
+     "1.8.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "etag@1.8.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "express": {
+     "4.16.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "accepts": "1.3.8",
+       "array-flatten": "1.1.1",
+       "body-parser": "1.18.2",
+       "content-disposition": "0.5.2",
+       "content-type": "1.0.5",
+       "cookie": "0.3.1",
+       "cookie-signature": "1.0.6",
+       "debug": "2.6.9",
+       "depd": "1.1.2",
+       "encodeurl": "1.0.4",
+       "escape-html": "1.0.3",
+       "etag": "1.8.1",
+       "finalhandler": "1.1.0",
+       "fresh": "0.5.2",
+       "merge-descriptors": "1.0.1",
+       "methods": "1.1.2",
+       "on-finished": "2.3.0",
+       "parseurl": "1.3.3",
+       "path-to-regexp": "0.1.7",
+       "proxy-addr": "2.0.8",
+       "qs": "6.5.1",
+       "range-parser": "1.2.1",
+       "safe-buffer": "5.1.1",
+       "send": "0.16.0",
+       "serve-static": "1.13.0",
+       "setprototypeof": "1.1.0",
+       "statuses": "1.3.1",
+       "type-is": "1.6.18",
+       "utils-merge": "1.0.1",
+       "vary": "1.1.2"
+      },
+      "Dev": false,
+      "Direct": true,
+      "Key": "express@4.16.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "accepts": "~1.3.4",
+       "array-flatten": "1.1.1",
+       "body-parser": "1.18.2",
+       "content-disposition": "0.5.2",
+       "content-type": "~1.0.4",
+       "cookie": "0.3.1",
+       "cookie-signature": "1.0.6",
+       "debug": "2.6.9",
+       "depd": "~1.1.1",
+       "encodeurl": "~1.0.1",
+       "escape-html": "~1.0.3",
+       "etag": "~1.8.1",
+       "finalhandler": "1.1.0",
+       "fresh": "0.5.2",
+       "merge-descriptors": "1.0.1",
+       "methods": "~1.1.2",
+       "on-finished": "~2.3.0",
+       "parseurl": "~1.3.2",
+       "path-to-regexp": "0.1.7",
+       "proxy-addr": "~2.0.2",
+       "qs": "6.5.1",
+       "range-parser": "~1.2.0",
+       "safe-buffer": "5.1.1",
+       "send": "0.16.0",
+       "serve-static": "1.13.0",
+       "setprototypeof": "1.1.0",
+       "statuses": "~1.3.1",
+       "type-is": "~1.6.15",
+       "utils-merge": "1.0.1",
+       "vary": "~1.1.2"
+      },
+      "Transitive": false
+     }
+    },
+    "finalhandler": {
+     "1.1.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "debug": "2.6.9",
+       "encodeurl": "1.0.4",
+       "escape-html": "1.0.3",
+       "on-finished": "2.3.0",
+       "parseurl": "1.3.3",
+       "statuses": "1.3.1",
+       "unpipe": "1.0.0"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "finalhandler@1.1.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "debug": "2.6.9",
+       "encodeurl": "~1.0.1",
+       "escape-html": "~1.0.3",
+       "on-finished": "~2.3.0",
+       "parseurl": "~1.3.2",
+       "statuses": "~1.3.1",
+       "unpipe": "~1.0.0"
+      },
+      "Transitive": true
+     }
+    },
+    "follow-redirects": {
+     "1.16.3": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "follow-redirects@1.16.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "forwarded": {
+     "0.2.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "forwarded@0.2.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "fresh": {
+     "0.5.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "fresh@0.5.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "fs.realpath": {
+     "1.0.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "fs.realpath@1.0.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "glob": {
+     "7.1.2": {
+      "Bundled": false,
+      "Dependencies": {
+       "fs.realpath": "1.0.0",
+       "inflight": "1.0.6",
+       "inherits": "2.0.3",
+       "minimatch": "3.0.4",
+       "once": "1.4.0",
+       "path-is-absolute": "1.0.1"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "glob@7.1.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "fs.realpath": "^1.0.0",
+       "inflight": "^1.0.4",
+       "inherits": "2",
+       "minimatch": "^3.0.4",
+       "once": "^1.3.0",
+       "path-is-absolute": "^1.0.0"
+      },
+      "Transitive": true
+     }
+    },
+    "growl": {
+     "1.10.5": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "growl@1.10.5",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "has-flag": {
+     "3.0.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "has-flag@3.0.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "he": {
+     "1.1.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "he@1.1.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "http-errors": {
+     "1.6.2": {
+      "Bundled": false,
+      "Dependencies": {
+       "depd": "1.1.1",
+       "inherits": "2.0.3",
+       "setprototypeof": "1.0.3",
+       "statuses": "1.3.1"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "http-errors@1.6.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "depd": "1.1.1",
+       "inherits": "2.0.3",
+       "setprototypeof": "1.0.3",
+       "statuses": ">= 1.3.1 < 2"
+      },
+      "Transitive": true
+     },
+     "1.6.3": {
+      "Bundled": false,
+      "Dependencies": {
+       "depd": "1.1.2",
+       "inherits": "2.0.3",
+       "setprototypeof": "1.1.0",
+       "statuses": "1.5.0"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "http-errors@1.6.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "depd": "~1.1.2",
+       "inherits": "2.0.3",
+       "setprototypeof": "1.1.0",
+       "statuses": ">= 1.4.0 < 2"
+      },
+      "Transitive": true
+     }
+    },
+    "iconv-lite": {
+     "0.4.19": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "iconv-lite@0.4.19",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "inflight": {
+     "1.0.6": {
+      "Bundled": false,
+      "Dependencies": {
+       "once": "1.4.0",
+       "wrappy": "1.0.2"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "inflight@1.0.6",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "once": "^1.3.0",
+       "wrappy": "1"
+      },
+      "Transitive": true
+     }
+    },
+    "inherits": {
+     "2.0.3": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "inherits@2.0.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "ipaddr.js": {
+     "1.9.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "ipaddr.js@1.9.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "is-buffer": {
+     "1.1.6": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "is-buffer@1.1.6",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "jquery": {
+     "3.3.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": true,
+      "Key": "jquery@3.3.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": false
+     }
+    },
+    "left-pad": {
+     "1.3.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": true,
+      "Key": "left-pad@1.3.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": false
+     }
+    },
+    "lodash": {
+     "4.17.4": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": true,
+      "Key": "lodash@4.17.4",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": false
+     }
+    },
+    "media-typer": {
+     "0.3.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "media-typer@0.3.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "merge-descriptors": {
+     "1.0.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "merge-descriptors@1.0.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "methods": {
+     "1.1.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "methods@1.1.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "mime": {
+     "1.4.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "mime@1.4.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "mime-db": {
+     "1.52.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "mime-db@1.52.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "mime-types": {
+     "2.1.35": {
+      "Bundled": false,
+      "Dependencies": {
+       "mime-db": "1.52.0"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "mime-types@2.1.35",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "mime-db": "1.52.0"
+      },
+      "Transitive": true
+     }
+    },
+    "minimatch": {
+     "3.0.4": {
+      "Bundled": false,
+      "Dependencies": {
+       "brace-expansion": "1.1.22"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "minimatch@3.0.4",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "brace-expansion": "^1.1.7"
+      },
+      "Transitive": true
+     }
+    },
+    "minimist": {
+     "0.0.8": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": true,
+      "Key": "minimist@0.0.8",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "mkdirp": {
+     "0.5.1": {
+      "Bundled": false,
+      "Dependencies": {
+       "minimist": "0.0.8"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "mkdirp@0.5.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "minimist": "0.0.8"
+      },
+      "Transitive": true
+     }
+    },
+    "mocha": {
+     "5.2.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "browser-stdout": "1.3.1",
+       "commander": "2.15.1",
+       "debug": "3.1.0",
+       "diff": "3.5.0",
+       "escape-string-regexp": "1.0.5",
+       "glob": "7.1.2",
+       "growl": "1.10.5",
+       "he": "1.1.1",
+       "minimatch": "3.0.4",
+       "mkdirp": "0.5.1",
+       "supports-color": "5.4.0"
+      },
+      "Dev": true,
+      "Direct": true,
+      "Key": "mocha@5.2.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "browser-stdout": "1.3.1",
+       "commander": "2.15.1",
+       "debug": "3.1.0",
+       "diff": "3.5.0",
+       "escape-string-regexp": "1.0.5",
+       "glob": "7.1.2",
+       "growl": "1.10.5",
+       "he": "1.1.1",
+       "minimatch": "3.0.4",
+       "mkdirp": "0.5.1",
+       "supports-color": "5.4.0"
+      },
+      "Transitive": false
+     }
+    },
+    "ms": {
+     "2.0.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "ms@2.0.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "negotiator": {
+     "0.6.3": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "negotiator@0.6.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "node-forge": {
+     "0.9.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": true,
+      "Key": "node-forge@0.9.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": false
+     }
+    },
+    "on-finished": {
+     "2.3.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "ee-first": "1.1.1"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "on-finished@2.3.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "ee-first": "1.1.1"
+      },
+      "Transitive": true
+     }
+    },
+    "once": {
+     "1.4.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "wrappy": "1.0.2"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "once@1.4.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "wrappy": "1"
+      },
+      "Transitive": true
+     }
+    },
+    "parseurl": {
+     "1.3.3": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "parseurl@1.3.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "path-is-absolute": {
+     "1.0.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "path-is-absolute@1.0.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "path-to-regexp": {
+     "0.1.7": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "path-to-regexp@0.1.7",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "proxy-addr": {
+     "2.0.8": {
+      "Bundled": false,
+      "Dependencies": {
+       "forwarded": "0.2.0",
+       "ipaddr.js": "1.9.1"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "proxy-addr@2.0.8",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "forwarded": "0.2.0",
+       "ipaddr.js": "1.9.1"
+      },
+      "Transitive": true
+     }
+    },
+    "qs": {
+     "6.5.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "qs@6.5.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "range-parser": {
+     "1.2.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "range-parser@1.2.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "raw-body": {
+     "2.3.2": {
+      "Bundled": false,
+      "Dependencies": {
+       "bytes": "3.0.0",
+       "http-errors": "1.6.2",
+       "iconv-lite": "0.4.19",
+       "unpipe": "1.0.0"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "raw-body@2.3.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "bytes": "3.0.0",
+       "http-errors": "1.6.2",
+       "iconv-lite": "0.4.19",
+       "unpipe": "1.0.0"
+      },
+      "Transitive": true
+     }
+    },
+    "readline-sync": {
+     "1.4.10": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": true,
+      "Key": "readline-sync@1.4.10",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": false
+     }
+    },
+    "rgbcolor": {
+     "1.0.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": true,
+      "Key": "rgbcolor@1.0.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": false
+     }
+    },
+    "safe-buffer": {
+     "5.1.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "safe-buffer@5.1.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "send": {
+     "0.16.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "debug": "2.6.9",
+       "depd": "1.1.2",
+       "destroy": "1.0.4",
+       "encodeurl": "1.0.4",
+       "escape-html": "1.0.3",
+       "etag": "1.8.1",
+       "fresh": "0.5.2",
+       "http-errors": "1.6.3",
+       "mime": "1.4.1",
+       "ms": "2.0.0",
+       "on-finished": "2.3.0",
+       "range-parser": "1.2.1",
+       "statuses": "1.3.1"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "send@0.16.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "debug": "2.6.9",
+       "depd": "~1.1.1",
+       "destroy": "~1.0.4",
+       "encodeurl": "~1.0.1",
+       "escape-html": "~1.0.3",
+       "etag": "~1.8.1",
+       "fresh": "0.5.2",
+       "http-errors": "~1.6.2",
+       "mime": "1.4.1",
+       "ms": "2.0.0",
+       "on-finished": "~2.3.0",
+       "range-parser": "~1.2.0",
+       "statuses": "~1.3.1"
+      },
+      "Transitive": true
+     }
+    },
+    "serve-static": {
+     "1.13.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "encodeurl": "1.0.4",
+       "escape-html": "1.0.3",
+       "parseurl": "1.3.3",
+       "send": "0.16.0"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "serve-static@1.13.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "encodeurl": "~1.0.1",
+       "escape-html": "~1.0.3",
+       "parseurl": "~1.3.2",
+       "send": "0.16.0"
+      },
+      "Transitive": true
+     }
+    },
+    "setprototypeof": {
+     "1.0.3": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "setprototypeof@1.0.3",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     },
+     "1.1.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "setprototypeof@1.1.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "statuses": {
+     "1.3.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "statuses@1.3.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     },
+     "1.5.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "statuses@1.5.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "supports-color": {
+     "5.4.0": {
+      "Bundled": false,
+      "Dependencies": {
+       "has-flag": "3.0.0"
+      },
+      "Dev": true,
+      "Direct": false,
+      "Key": "supports-color@5.4.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {
+       "has-flag": "^3.0.0"
+      },
+      "Transitive": true
+     }
+    },
+    "type-is": {
+     "1.6.18": {
+      "Bundled": false,
+      "Dependencies": {
+       "media-typer": "0.3.0",
+       "mime-types": "2.1.35"
+      },
+      "Dev": false,
+      "Direct": false,
+      "Key": "type-is@1.6.18",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {
+       "media-typer": "0.3.0",
+       "mime-types": "~2.1.24"
+      },
+      "Transitive": true
+     }
+    },
+    "unpipe": {
+     "1.0.0": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "unpipe@1.0.0",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "utils-merge": {
+     "1.0.1": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "utils-merge@1.0.1",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "vary": {
+     "1.1.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": false,
+      "Direct": false,
+      "Key": "vary@1.1.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": true,
+      "Requires": {},
+      "Transitive": true
+     }
+    },
+    "wrappy": {
+     "1.0.2": {
+      "Bundled": false,
+      "Dependencies": {},
+      "Dev": true,
+      "Direct": false,
+      "Key": "wrappy@1.0.2",
+      "Licenses": null,
+      "Optional": false,
+      "Prod": false,
+      "Requires": {},
+      "Transitive": true
+     }
+    }
+   },
+   "start": {
+    "dependencies": [
+     {
+      "constraint": "0.18.0",
+      "name": "axios",
+      "version": "0.18.0"
+     },
+     {
+      "constraint": "4.16.0",
+      "name": "express",
+      "version": "4.16.0"
+     },
+     {
+      "constraint": "3.3.1",
+      "name": "jquery",
+      "version": "3.3.1"
+     },
+     {
+      "constraint": "4.17.4",
+      "name": "lodash",
+      "version": "4.17.4"
+     },
+     {
+      "constraint": "0.0.8",
+      "name": "minimist",
+      "version": "0.0.8"
+     },
+     {
+      "constraint": "0.9.0",
+      "name": "node-forge",
+      "version": "0.9.0"
+     },
+     {
+      "constraint": "1.4.10",
+      "name": "readline-sync",
+      "version": "1.4.10"
+     },
+     {
+      "constraint": "1.0.1",
+      "name": "rgbcolor",
+      "version": "1.0.1"
+     }
+    ],
+    "dev_dependencies": [
+     {
+      "constraint": "1.3.0",
+      "name": "left-pad",
+      "version": "1.3.0"
+     },
+     {
+      "constraint": "5.2.0",
+      "name": "mocha",
+      "version": "5.2.0"
+     }
+    ]
+   }
+  }
+ }
+}

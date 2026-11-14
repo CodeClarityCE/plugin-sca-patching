@@ -148,7 +148,9 @@ func (patcher Patcher) findLessVulnerableDependency(dependencyName string, depen
 		if err != nil {
 			return "", []patching.ToPatch{}, err
 		}
-		score, vulnerabilities, err := patcher.lookForVulnerabilities(transitiveProdDependencies, transitiveDevDependencies)
+		// Check the candidate version itself as well as what it pulls in.
+		candidate := append([]string{dependencyName + "@" + version}, transitiveProdDependencies...)
+		score, vulnerabilities, err := patcher.lookForVulnerabilities(candidate, transitiveDevDependencies)
 		if err != nil {
 			return "", []patching.ToPatch{}, err
 		}
@@ -251,28 +253,27 @@ func convertNVDItemsToPatchItems(nvdItems []knowledge.NVDItem, name string, vers
 
 func (patcher Patcher) patchDirectDependencyVulnerable(dependency string, vulnerableDependency patching.ToPatch) {
 	patch := patcher.patching_info[dependency]
-	if vulnerableDependency.Vulnerability.NVDMatch.VulnerableEvidenceType == vulnerabilityFinder.VULNERABLE_EVIDENCE_UNIVERSAL {
-		patch.IsPatchable = "NONE"
-		patch.Unpatchable = append(patch.Unpatchable, vulnerableDependency)
-
-	} else {
-		patched_version, err := getClosestNonVulnerable(*vulnerableDependency.Vulnerability.NVDMatch, *vulnerableDependency.Vulnerability.OSVMatch)
-		if err != nil {
-			panic(err)
-		}
+	patchedVersion, ok := getClosestNonVulnerable(vulnerableDependency.Vulnerability.NVDMatch, vulnerableDependency.Vulnerability.OSVMatch)
+	if ok {
 		patch.IsPatchable = "FULL"
 		patch.Patchable = append(patch.Patchable, vulnerableDependency)
-		patch.Patches[dependency] = patched_version
-		patch.Update = patched_version
+		patch.Patches[dependency] = patchedVersion
+		patch.Update = patchedVersion
+	} else {
+		patch.IsPatchable = "NONE"
+		patch.Unpatchable = append(patch.Unpatchable, vulnerableDependency)
 	}
 	patcher.patching_info[dependency] = patch
 }
 
-func getClosestNonVulnerable(NVD vulnerabilityFinder.NVDVulnerability, OSV vulnerabilityFinder.OSVVulnerability) (versions.Semver, error) {
-	if NVD.VulnerableEvidenceType == vulnerabilityFinder.VULNERABLE_EVIDENCE_RANGE {
-		return NVD.VulnerableEvidenceRange.Vulnerable.FixedSemver, nil
-	} else if NVD.VulnerableEvidenceType == vulnerabilityFinder.VULNERABLE_EVIDENCE_EXACT {
-		return versions.Semver{}, fmt.Errorf("not implemented")
+// getClosestNonVulnerable returns the fixed version of a range match, NVD first then OSV.
+// Either match can be missing, and exact or universal matches name no fix.
+func getClosestNonVulnerable(nvd *vulnerabilityFinder.NVDVulnerability, osv *vulnerabilityFinder.OSVVulnerability) (versions.Semver, bool) {
+	if nvd != nil && nvd.VulnerableEvidenceType == vulnerabilityFinder.VULNERABLE_EVIDENCE_RANGE && !nvd.VulnerableEvidenceRange.OpenEnd {
+		return nvd.VulnerableEvidenceRange.Vulnerable.FixedSemver, true
 	}
-	return versions.Semver{}, fmt.Errorf("vulnerable evidence unknown")
+	if osv != nil && osv.VulnerableEvidenceType == vulnerabilityFinder.VULNERABLE_EVIDENCE_RANGE && !osv.VulnerableEvidenceRange.OpenEnd {
+		return osv.VulnerableEvidenceRange.Vulnerable.FixedSemver, true
+	}
+	return versions.Semver{}, false
 }
