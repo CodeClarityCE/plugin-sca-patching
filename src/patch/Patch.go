@@ -148,7 +148,9 @@ func (patcher Patcher) findLessVulnerableDependency(dependencyName string, depen
 		if err != nil {
 			return "", []patching.ToPatch{}, err
 		}
-		score, vulnerabilities, err := patcher.lookForVulnerabilities(transitiveProdDependencies, transitiveDevDependencies)
+		// Check the candidate version itself as well as what it pulls in.
+		candidate := append([]string{dependencyName + "@" + version}, transitiveProdDependencies...)
+		score, vulnerabilities, err := patcher.lookForVulnerabilities(candidate, transitiveDevDependencies)
 		if err != nil {
 			return "", []patching.ToPatch{}, err
 		}

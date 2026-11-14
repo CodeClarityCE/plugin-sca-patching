@@ -6,6 +6,7 @@ import (
 
 	"github.com/CodeClarityCE/plugin-sca-patching/internal/knowledgetest"
 	patching "github.com/CodeClarityCE/plugin-sca-patching/src"
+	"github.com/CodeClarityCE/utility-node-semver/versions"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -34,6 +35,12 @@ func TestPatchesProjectWithVulnerabilities(t *testing.T) {
 	require.True(t, ok, "expected a patch entry for express@4.16.0, got %v", keys(patches))
 	assert.Contains(t, []string{"FULL", "PARTIAL"}, express.IsPatchable)
 	assert.NotEmpty(t, express.Update.String())
+
+	// The suggested upgrade must not still carry lodash's own CVE-2019-10744, fixed in 4.17.12.
+	lodash, ok := patches["lodash@4.17.4"]
+	require.True(t, ok, "expected a patch entry for lodash@4.17.4, got %v", keys(patches))
+	minimum := versions.Semver{Major: 4, Minor: 17, Patch: 12}
+	assert.GreaterOrEqual(t, lodash.Update.Compare(minimum, false), 0, "lodash upgrade %s is still vulnerable", lodash.Update.String())
 
 	for name, patch := range patches {
 		assert.Contains(t, []string{"FULL", "PARTIAL", "NONE"}, patch.IsPatchable, "patch %s", name)
