@@ -1,6 +1,6 @@
 {
     "name": "js-patching",
-    "version": "v0.0.21-alpha",
+    "version": "v0.0.22-alpha",
     "image_name": "codeclarityce/plugin-js-patching",
     "depends_on": [
         "js-sbom",
