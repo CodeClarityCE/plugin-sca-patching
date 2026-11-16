@@ -1,0 +1,18 @@
+{
+ "analysis_info": {
+  "analysis_delta_time": 0.02412475,
+  "analysis_end_time": "2026-11-14 20:21:01.655818176 +0000 UTC",
+  "analysis_start_time": "2026-11-14 20:21:01.631693926 +0000 UTC",
+  "default_workspace_name": "",
+  "errors": null,
+  "import_path_seperator": "",
+  "self_managed_workspace_name": "",
+  "status": "success",
+  "version_seperator": ""
+ },
+ "workspaces": {
+  ".": {
+   "Vulnerabilities": []
+  }
+ }
+}
