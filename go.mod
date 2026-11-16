@@ -4,7 +4,7 @@ go 1.27.4
 
 require (
 	github.com/CodeClarityCE/plugin-sbom-javascript v0.0.28-alpha
-	github.com/CodeClarityCE/plugin-sca-vuln-finder v0.0.28-alpha
+	github.com/CodeClarityCE/plugin-sca-vuln-finder v0.0.29-alpha
 	github.com/CodeClarityCE/utility-boilerplates v0.0.10-alpha
 	github.com/CodeClarityCE/utility-dbhelper v0.0.18-alpha
 	github.com/CodeClarityCE/utility-node-semver v0.0.11-alpha
@@ -17,7 +17,7 @@ require (
 )
 
 require (
-	github.com/CodeClarityCE/service-knowledge v0.0.28-alpha // indirect
+	github.com/CodeClarityCE/service-knowledge v0.0.29-alpha // indirect
 	github.com/CodeClarityCE/utility-amqp-helper v0.0.15-alpha // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
