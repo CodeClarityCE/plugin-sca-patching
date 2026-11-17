@@ -2,6 +2,7 @@ package patch
 
 import (
 	"slices"
+	"strings"
 
 	sbomTypes "github.com/CodeClarityCE/plugin-sbom-javascript/src/types/sbom/js"
 	"github.com/CodeClarityCE/plugin-sca-patching/src/types/patching"
@@ -61,5 +62,32 @@ func newToPatch(vulnerability vulnerabilityFinder.Vulnerability, path []string) 
 	if fixed, ok := getClosestNonVulnerable(vulnerability.NVDMatch, vulnerability.OSVMatch); ok {
 		occurrence.AdvisoryFix = &fixed
 	}
+	occurrence.Identifiers = identifiers(vulnerability)
 	return occurrence
+}
+
+// identifiers lists every id a vulnerability is known by, upper-cased.
+func identifiers(vulnerability vulnerabilityFinder.Vulnerability) []string {
+	ids := []string{vulnerability.VulnerabilityId}
+	for _, match := range vulnerability.SourceMatches {
+		ids = append(ids, match.RecordId)
+	}
+	if osv := vulnerability.OSVMatch; osv != nil {
+		ids = append(ids, osv.Vulnerability.OSVId, osv.Vulnerability.Cve)
+		ids = append(ids, osv.Vulnerability.Aliases...)
+	}
+	if nvd := vulnerability.NVDMatch; nvd != nil {
+		ids = append(ids, nvd.Vulnerability.NVDId)
+	}
+	if gcve := vulnerability.GCVEMatch; gcve != nil {
+		ids = append(ids, gcve.Vulnerability.CVEId, gcve.Vulnerability.GCVEId)
+	}
+	unique := []string{}
+	for _, id := range ids {
+		id = strings.ToUpper(strings.TrimSpace(id))
+		if id != "" && !slices.Contains(unique, id) {
+			unique = append(unique, id)
+		}
+	}
+	return unique
 }

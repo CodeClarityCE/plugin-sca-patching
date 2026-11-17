@@ -46,6 +46,18 @@ func TestPatchesProjectWithVulnerabilities(t *testing.T) {
 	minimum := versions.Semver{Major: 4, Minor: 17, Patch: 12}
 	assert.GreaterOrEqual(t, lodash.Update.Compare(minimum, false), 0, "lodash upgrade %s is still vulnerable", lodash.Update.String())
 
+	// node-forge's NVD product is "forge", so only OSV matching sees it; the upgrade must be clean by both.
+	forge, ok := patches["node-forge@0.9.0"]
+	require.True(t, ok, "expected a patch entry for node-forge@0.9.0, got %v", keys(patches))
+	assert.Equal(t, "FULL", forge.IsPatchable)
+	assert.Empty(t, forge.Unpatchable)
+	assert.Empty(t, forge.Introduced)
+
+	// A fix outside the installed major is flagged as potentially breaking.
+	axios, ok := patches["axios@0.18.0"]
+	require.True(t, ok, "expected a patch entry for axios@0.18.0, got %v", keys(patches))
+	assert.Equal(t, axios.Update.Major != 0, axios.PotentiallyBreaking, "axios upgrade %s", axios.Update.String())
+
 	for name, patch := range patches {
 		assert.Contains(t, []string{"FULL", "PARTIAL", "NONE"}, patch.IsPatchable, "patch %s", name)
 	}

@@ -13,7 +13,6 @@ import (
 	"github.com/uptrace/bun"
 
 	sbomTypes "github.com/CodeClarityCE/plugin-sbom-javascript/src/types/sbom/js"
-	"github.com/CodeClarityCE/plugin-sca-patching/src/types"
 )
 
 func Start(knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.Output, languageId string, start time.Time) patching.Output {
@@ -30,14 +29,7 @@ func Start(knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.O
 		return outputGenerator.FailureOutput(sbom.AnalysisInfo, start)
 	}
 
-	// Initialize the patcher with specific upgrade policies
-	upgradePolicy := types.UpgradePolicy{
-		VersionSelectionPreference: types.SELECT_NEWEST,
-		PartialFixVersionSelection: types.SELECT_LOWEST_AVERAGE_SEVERITY,
-		AllowDowngrades:            false,
-	}
-
-	workSpaceData := patch.InitializePatcher(upgradePolicy, knowledge, sbom, vulns).PatchApplication()
+	workSpaceData := patch.InitializePatcher(knowledge, sbom, vulns).PatchApplication()
 
 	// Return a success output with the patched data
 	return outputGenerator.SuccessOutput(workSpaceData, sbom.AnalysisInfo, start)

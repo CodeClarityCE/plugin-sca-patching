@@ -2,26 +2,32 @@ package patch
 
 import (
 	sbomTypes "github.com/CodeClarityCE/plugin-sbom-javascript/src/types/sbom/js"
-	types "github.com/CodeClarityCE/plugin-sca-patching/src/types"
 	"github.com/CodeClarityCE/plugin-sca-patching/src/types/patching"
 	vulnerabilityFinder "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/types"
+	matcher "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/vulnerabilityMatcher"
 	"github.com/uptrace/bun"
 )
 
 type Patcher struct {
-	UpgradePolicy types.UpgradePolicy
-	Knowledge     *bun.DB
 	Sbom          sbomTypes.Output
 	Vulns         vulnerabilityFinder.Output
+	registry      Registry
+	checker       *vulnerabilityChecker
 	patching_info map[string]patching.PatchInfo
 }
 
-func InitializePatcher(upgradePolicy types.UpgradePolicy, knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.Output) Patcher {
+// InitializePatcher reads package versions and advisories from the knowledge database.
+func InitializePatcher(knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.Output) Patcher {
+	return newPatcher(dbRegistry{db: knowledge}, knowledge, nil, sbom, vulns)
+}
+
+// newPatcher builds a patcher on the given lookups; nil advisories read the knowledge database.
+func newPatcher(registry Registry, knowledge *bun.DB, advisories matcher.Advisories, sbom sbomTypes.Output, vulns vulnerabilityFinder.Output) Patcher {
 	return Patcher{
-		UpgradePolicy: upgradePolicy,
-		Knowledge:     knowledge,
-		Sbom:          sbom,
-		Vulns:         vulns,
+		Sbom:     sbom,
+		Vulns:    vulns,
+		registry: newCachedRegistry(registry),
+		checker:  newVulnerabilityChecker(knowledge, advisories),
 	}
 }
 
