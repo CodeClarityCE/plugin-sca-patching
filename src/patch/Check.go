@@ -25,12 +25,7 @@ func recursiveFindDependenciesToPatch(version sbomTypes.Versions, sbom sbomTypes
 
 	for _, vulnerability := range vulnerabilities {
 		if version.Key == vulnerability.AffectedDependency+"@"+vulnerability.AffectedVersion {
-			toPatch = append(toPatch, patching.ToPatch{
-				DependencyName:    vulnerability.AffectedDependency,
-				DependencyVersion: vulnerability.AffectedVersion,
-				Path:              new_path,
-				Vulnerability:     vulnerability,
-			})
+			toPatch = append(toPatch, newToPatch(vulnerability, new_path))
 		}
 	}
 	for dependency_name, dependency_version := range version.Dependencies {
@@ -53,4 +48,18 @@ func addDependenciesToPatch(dependencies []sbomTypes.WorkSpaceDependency, sbom s
 		}
 	}
 	return toPatch
+}
+
+// newToPatch records one vulnerable occurrence with the fix its advisory names.
+func newToPatch(vulnerability vulnerabilityFinder.Vulnerability, path []string) patching.ToPatch {
+	occurrence := patching.ToPatch{
+		DependencyName:    vulnerability.AffectedDependency,
+		DependencyVersion: vulnerability.AffectedVersion,
+		Path:              path,
+		Vulnerability:     patching.TrimVulnerability(vulnerability),
+	}
+	if fixed, ok := getClosestNonVulnerable(vulnerability.NVDMatch, vulnerability.OSVMatch); ok {
+		occurrence.AdvisoryFix = &fixed
+	}
+	return occurrence
 }
