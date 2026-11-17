@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/CodeClarityCE/plugin-sca-patching/internal/knowledgetest"
 	patching "github.com/CodeClarityCE/plugin-sca-patching/src"
+	"github.com/CodeClarityCE/plugin-sca-patching/src/patch"
 	"github.com/CodeClarityCE/utility-node-semver/versions"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +26,8 @@ func TestPatchesProjectWithVulnerabilities(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, vulns.WorkSpaces["."].Vulnerabilities)
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	require.Equal(t, codeclarity.SUCCESS, out.AnalysisInfo.Status)
 	patches := out.WorkSpaces["."].Patches
@@ -71,7 +74,8 @@ func TestPatchesProjectWithoutVulnerabilities(t *testing.T) {
 	vulns, err := getVulns("fixtures/audit-clean-js")
 	require.NoError(t, err)
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	require.Equal(t, codeclarity.SUCCESS, out.AnalysisInfo.Status)
 	require.Contains(t, out.WorkSpaces, ".")

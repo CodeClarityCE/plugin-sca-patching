@@ -39,8 +39,8 @@ func TestResolveTreeFollowsTransitiveDependencies(t *testing.T) {
 	require.NoError(t, err)
 
 	// express 4.16.0 pins body-parser 1.18.2, which pins raw-body 2.3.2, which depends on bytes.
-	assert.Equal(t, []string{"4.16.0"}, tree["express"])
-	assert.Equal(t, []string{"1.18.2"}, tree["body-parser"])
-	assert.Equal(t, []string{"2.3.2"}, tree["raw-body"])
-	assert.Contains(t, tree, "bytes")
+	assert.Equal(t, []string{"4.16.0"}, tree.versions["express"])
+	assert.Equal(t, []string{"1.18.2"}, tree.versions["body-parser"])
+	assert.Equal(t, []string{"2.3.2"}, tree.versions["raw-body"])
+	assert.Contains(t, tree.versions, "bytes")
 }
