@@ -35,6 +35,10 @@ func TestPatchesProjectWithVulnerabilities(t *testing.T) {
 	require.True(t, ok, "expected a patch entry for express@4.16.0, got %v", keys(patches))
 	assert.Contains(t, []string{"FULL", "PARTIAL"}, express.IsPatchable)
 	assert.NotEmpty(t, express.Update.String())
+	// body-parser 1.18.2 is vulnerable under express 4.16.0; the upgrade's own body-parser is its fix.
+	bodyParser, ok := express.Patches["body-parser@1.18.2"]
+	require.True(t, ok, "expected a fixed version for the transitive body-parser@1.18.2, got %v", keys(express.Patches))
+	assert.Positive(t, bodyParser.Compare(versions.Semver{Major: 1, Minor: 18, Patch: 2}, false))
 
 	// The suggested upgrade must not still carry lodash's own CVE-2019-10744, fixed in 4.17.12.
 	lodash, ok := patches["lodash@4.17.4"]

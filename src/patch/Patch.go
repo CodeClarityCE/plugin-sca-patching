@@ -44,7 +44,7 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 				name = splited_dependency[0] + "@" + splited_dependency[1]
 				version = splited_dependency[2]
 			}
-			lessVulnerableVersion, vulnerabilities, err := patcher.findLessVulnerableDependency(name, version)
+			lessVulnerableVersion, resolved, vulnerabilities, err := patcher.findLessVulnerableDependency(name, version)
 			if err != nil {
 				if err.Error() == "already patched" {
 					continue
@@ -55,7 +55,8 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 					patch.Introduced = introduced
 					patch.Unpatchable = unpatchable
 					patch.Patchable = patchable
-					// patch.Patches[dependency] = versions.Semver{Version: lessVulnerableVersion}
+					addFixedVersions(patch.Patches, patchable, resolved)
+					addFixedVersions(patch.Patches, unpatchable, nil)
 					patch.Update, err = semver.ParseSemver(lessVulnerableVersion)
 					if err != nil {
 						panic(err)
@@ -66,6 +67,7 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 					patch := patcher.patching_info[dependency]
 					patch.IsPatchable = "NONE"
 					patch.Unpatchable = toPatch
+					addFixedVersions(patch.Patches, toPatch, nil)
 					patcher.patching_info[dependency] = patch
 					continue
 				} else {
@@ -76,7 +78,7 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 			patch := patcher.patching_info[dependency]
 			patch.IsPatchable = "FULL"
 			patch.Patchable = toPatch
-			// patch.Patches[dependency] = versions.Semver{Version: lessVulnerableVersion}
+			addFixedVersions(patch.Patches, toPatch, resolved)
 			patch.Update, err = semver.ParseSemver(lessVulnerableVersion)
 			if err != nil {
 				panic(err)
@@ -86,6 +88,24 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 		}
 	}
 	return patcher.patching_info
+}
+
+// addFixedVersions records, for each occurrence, the version of its package that ends it.
+// That is the version resolved under the upgrade (name -> version), or else the advisory's fix.
+// An occurrence with neither gets no entry.
+func addFixedVersions(patches map[string]versions.Semver, occurrences []patching.ToPatch, resolved map[string]string) {
+	for _, occurrence := range occurrences {
+		key := occurrence.DependencyName + "@" + occurrence.DependencyVersion
+		if version, ok := resolved[occurrence.DependencyName]; ok && version != occurrence.DependencyVersion {
+			if parsed, err := semver.ParseSemver(version); err == nil {
+				patches[key] = parsed
+				continue
+			}
+		}
+		if occurrence.AdvisoryFix != nil {
+			patches[key] = *occurrence.AdvisoryFix
+		}
+	}
 }
 
 func generatePatchingResult(vulnerabilities []patching.ToPatch, toPatch []patching.ToPatch) ([]patching.ToPatch, []patching.ToPatch, []patching.ToPatch) {
@@ -126,49 +146,65 @@ func generatePatchingResult(vulnerabilities []patching.ToPatch, toPatch []patchi
 	return introduced, unpatchable, patchable
 }
 
-func (patcher Patcher) findLessVulnerableDependency(dependencyName string, dependencyVersion string) (string, []patching.ToPatch, error) {
+// findLessVulnerableDependency returns the chosen version, the package versions it resolves to
+// (name -> version, the candidate included), and the vulnerabilities left under it.
+func (patcher Patcher) findLessVulnerableDependency(dependencyName string, dependencyVersion string) (string, map[string]string, []patching.ToPatch, error) {
 	// Check that the dependency is not already patched
 	if patcher.patching_info[dependencyName+"@"+dependencyVersion].IsPatchable != "" {
-		return "", []patching.ToPatch{}, fmt.Errorf("already patched")
+		return "", nil, []patching.ToPatch{}, fmt.Errorf("already patched")
 	}
 
 	versions, err := patcher.getPossibleVersions(dependencyName, dependencyVersion)
 	if err != nil {
-		return "", []patching.ToPatch{}, err
+		return "", nil, []patching.ToPatch{}, err
 	}
 	if len(versions) == 0 {
-		return "", []patching.ToPatch{}, fmt.Errorf("not patchable")
+		return "", nil, []patching.ToPatch{}, fmt.Errorf("not patchable")
 	}
 
 	versionWithSmallestScore := ""
 	smallestScore := 0
 	smallestVulnerabilities := []patching.ToPatch{}
+	var smallestResolved map[string]string
 	for _, version := range versions {
 		transitiveProdDependencies, transitiveDevDependencies, err := patcher.getTransitiveDependencies(dependencyName, version)
 		if err != nil {
-			return "", []patching.ToPatch{}, err
+			return "", nil, []patching.ToPatch{}, err
 		}
 		// Check the candidate version itself as well as what it pulls in.
 		candidate := append([]string{dependencyName + "@" + version}, transitiveProdDependencies...)
 		score, vulnerabilities, err := patcher.lookForVulnerabilities(candidate, transitiveDevDependencies)
 		if err != nil {
-			return "", []patching.ToPatch{}, err
+			return "", nil, []patching.ToPatch{}, err
 		}
+		resolved := resolvedVersions(append(candidate, transitiveDevDependencies...))
 
 		// If the dependency is not vulnerable, we return the version
 		if score == 0 {
-			return version, vulnerabilities, nil
+			return version, resolved, vulnerabilities, nil
 		} else {
 			// we keep track of the smallest score and continue
 			if smallestScore == 0 || score < smallestScore {
 				smallestScore = score
 				smallestVulnerabilities = vulnerabilities
 				versionWithSmallestScore = version
+				smallestResolved = resolved
 			}
 		}
 
 	}
-	return versionWithSmallestScore, smallestVulnerabilities, fmt.Errorf("dependency not fully patchable")
+	return versionWithSmallestScore, smallestResolved, smallestVulnerabilities, fmt.Errorf("dependency not fully patchable")
+}
+
+// resolvedVersions maps each "name@version" (scoped names included) to name -> version.
+func resolvedVersions(dependencies []string) map[string]string {
+	resolved := map[string]string{}
+	for _, dependency := range dependencies {
+		if at := strings.LastIndex(dependency, "@"); at > 0 {
+			resolved[dependency[:at]] = dependency[at+1:]
+		}
+	}
+	return resolved
 }
 
 func (patcher Patcher) lookForVulnerabilities(transitiveProdDependencies []string, transitiveDevDependencies []string) (int, []patching.ToPatch, error) {
@@ -229,22 +265,17 @@ func (patcher Patcher) lookForVulnerabilities(transitiveProdDependencies []strin
 }
 
 func convertNVDItemsToPatchItems(nvdItems []knowledge.NVDItem, name string, version string) []patching.ToPatch {
-	// TODO fill missing information
 	toPatchItems := []patching.ToPatch{}
 	for _, nvdItem := range nvdItems {
 		toPatchItems = append(toPatchItems, patching.ToPatch{
 			DependencyName:    name,
 			DependencyVersion: version,
 			Path:              []string{},
-			Vulnerability: vulnerabilityFinder.Vulnerability{
-				Sources:            []vulnerabilityFinder.VulnerabilitySource{},
+			Vulnerability: patching.Vulnerability{
 				AffectedDependency: name,
 				AffectedVersion:    version,
 				VulnerabilityId:    nvdItem.NVDId,
-				OSVMatch:           &vulnerabilityFinder.OSVVulnerability{},
-				NVDMatch:           &vulnerabilityFinder.NVDVulnerability{},
-				Severity:           vulnerabilityFinder.VulnerabilityMatchSeverity{},
-				Weaknesses:         []vulnerabilityFinder.VulnerabilityMatchWeakness{},
+				Severity:           nvdSeverity(nvdItem.Metrics),
 			},
 		})
 	}
@@ -253,12 +284,11 @@ func convertNVDItemsToPatchItems(nvdItems []knowledge.NVDItem, name string, vers
 
 func (patcher Patcher) patchDirectDependencyVulnerable(dependency string, vulnerableDependency patching.ToPatch) {
 	patch := patcher.patching_info[dependency]
-	patchedVersion, ok := getClosestNonVulnerable(vulnerableDependency.Vulnerability.NVDMatch, vulnerableDependency.Vulnerability.OSVMatch)
-	if ok {
+	if fixed := vulnerableDependency.AdvisoryFix; fixed != nil {
 		patch.IsPatchable = "FULL"
 		patch.Patchable = append(patch.Patchable, vulnerableDependency)
-		patch.Patches[dependency] = patchedVersion
-		patch.Update = patchedVersion
+		patch.Patches[dependency] = *fixed
+		patch.Update = *fixed
 	} else {
 		patch.IsPatchable = "NONE"
 		patch.Unpatchable = append(patch.Unpatchable, vulnerableDependency)
@@ -276,4 +306,23 @@ func getClosestNonVulnerable(nvd *vulnerabilityFinder.NVDVulnerability, osv *vul
 		return osv.VulnerableEvidenceRange.Vulnerable.FixedSemver, true
 	}
 	return versions.Semver{}, false
+}
+
+// nvdSeverity reads the first CVSS metric of an NVD record, newest CVSS version first.
+func nvdSeverity(metrics knowledge.Metrics) patching.Severity {
+	switch {
+	case len(metrics.CvssMetricV31) > 0:
+		cvss := metrics.CvssMetricV31[0].CvssData
+		return patching.Severity{Severity: cvss.BaseScore, SeverityType: vulnerabilityFinder.CVSS_V31, Vector: cvss.VectorString,
+			ConfidentialityImpact: cvss.ConfidentialityImpact, IntegrityImpact: cvss.IntegrityImpact, AvailabilityImpact: cvss.AvailabilityImpact}
+	case len(metrics.CvssMetricV30) > 0:
+		cvss := metrics.CvssMetricV30[0].CvssData
+		return patching.Severity{Severity: cvss.BaseScore, SeverityType: vulnerabilityFinder.CVSS_V3, Vector: cvss.VectorString,
+			ConfidentialityImpact: cvss.ConfidentialityImpact, IntegrityImpact: cvss.IntegrityImpact, AvailabilityImpact: cvss.AvailabilityImpact}
+	case len(metrics.CvssMetricV2) > 0:
+		cvss := metrics.CvssMetricV2[0].CvssData
+		return patching.Severity{Severity: cvss.BaseScore, SeverityType: vulnerabilityFinder.CVSS_V2, Vector: cvss.VectorString,
+			ConfidentialityImpact: cvss.ConfidentialityImpact, IntegrityImpact: cvss.IntegrityImpact, AvailabilityImpact: cvss.AvailabilityImpact}
+	}
+	return patching.Severity{}
 }
