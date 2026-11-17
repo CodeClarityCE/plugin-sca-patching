@@ -71,9 +71,7 @@ func occurrence(name, version string, fix *versions.Semver) patching.ToPatch {
 
 func TestTransitiveOccurrenceGetsTheVersionResolvedUnderTheUpgrade(t *testing.T) {
 	advisoryFix := versions.Semver{Major: 1, Minor: 18, Patch: 3}
-	patches := map[string]versions.Semver{}
-
-	addFixedVersions(patches, []patching.ToPatch{occurrence("body-parser", "1.18.2", &advisoryFix)},
+	patches := fixedVersions([]patching.ToPatch{occurrence("body-parser", "1.18.2", &advisoryFix)}, nil,
 		map[string]string{"express": "4.17.3", "body-parser": "1.19.2"})
 
 	assert.Equal(t, map[string]versions.Semver{"body-parser@1.18.2": {Major: 1, Minor: 19, Patch: 2}}, patches)
@@ -81,16 +79,42 @@ func TestTransitiveOccurrenceGetsTheVersionResolvedUnderTheUpgrade(t *testing.T)
 
 func TestOccurrenceOutsideTheResolvedTreeGetsTheAdvisoryFix(t *testing.T) {
 	advisoryFix := versions.Semver{Major: 2, Minor: 0, Patch: 1}
-	patches := map[string]versions.Semver{}
-
-	addFixedVersions(patches, []patching.ToPatch{
+	patches := fixedVersions([]patching.ToPatch{
 		occurrence("deep", "1.0.0", &advisoryFix),
 		occurrence("same", "1.0.0", &advisoryFix),
 		occurrence("unknown", "1.0.0", nil),
-	}, map[string]string{"same": "1.0.0"})
+	}, nil, map[string]string{"same": "1.0.0"})
 
 	assert.Equal(t, map[string]versions.Semver{"deep@1.0.0": advisoryFix, "same@1.0.0": advisoryFix}, patches,
 		"no key when no fix is known, and an unchanged version is not a fix")
+}
+
+func TestSeveralAdvisoriesOnOnePackageVersionKeepTheHighestFix(t *testing.T) {
+	low := versions.Semver{Major: 1, Minor: 2, Patch: 0}
+	high := versions.Semver{Major: 1, Minor: 4, Patch: 1}
+
+	for name, order := range map[string][]*versions.Semver{"low first": {&low, &high}, "high first": {&high, &low}} {
+		t.Run(name, func(t *testing.T) {
+			patches := fixedVersions(nil, []patching.ToPatch{
+				occurrence("pkg", "1.0.0", order[0]),
+				occurrence("pkg", "1.0.0", order[1]),
+			}, nil)
+
+			assert.Equal(t, map[string]versions.Semver{"pkg@1.0.0": high}, patches)
+		})
+	}
+}
+
+func TestAdvisoryFixNeverReplacesTheResolvedVersion(t *testing.T) {
+	advisoryFix := versions.Semver{Major: 3, Minor: 0, Patch: 0}
+	resolved := map[string]string{"pkg": "2.1.0"}
+	// Two advisories hit pkg@1.0.0: the upgrade ends one, the other stays.
+	patchable := []patching.ToPatch{occurrence("pkg", "1.0.0", &versions.Semver{Major: 2, Minor: 0, Patch: 0})}
+	unpatchable := []patching.ToPatch{occurrence("pkg", "1.0.0", &advisoryFix)}
+
+	patches := fixedVersions(patchable, unpatchable, resolved)
+
+	assert.Equal(t, map[string]versions.Semver{"pkg@1.0.0": {Major: 2, Minor: 1, Patch: 0}}, patches)
 }
 
 func TestResolvedVersionsKeepsScopedNames(t *testing.T) {

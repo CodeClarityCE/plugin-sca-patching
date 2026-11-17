@@ -55,8 +55,7 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 					patch.Introduced = introduced
 					patch.Unpatchable = unpatchable
 					patch.Patchable = patchable
-					addFixedVersions(patch.Patches, patchable, resolved)
-					addFixedVersions(patch.Patches, unpatchable, nil)
+					patch.Patches = fixedVersions(patchable, unpatchable, resolved)
 					patch.Update, err = semver.ParseSemver(lessVulnerableVersion)
 					if err != nil {
 						panic(err)
@@ -67,7 +66,7 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 					patch := patcher.patching_info[dependency]
 					patch.IsPatchable = "NONE"
 					patch.Unpatchable = toPatch
-					addFixedVersions(patch.Patches, toPatch, nil)
+					patch.Patches = fixedVersions(nil, toPatch, nil)
 					patcher.patching_info[dependency] = patch
 					continue
 				} else {
@@ -78,7 +77,7 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 			patch := patcher.patching_info[dependency]
 			patch.IsPatchable = "FULL"
 			patch.Patchable = toPatch
-			addFixedVersions(patch.Patches, toPatch, resolved)
+			patch.Patches = fixedVersions(toPatch, nil, resolved)
 			patch.Update, err = semver.ParseSemver(lessVulnerableVersion)
 			if err != nil {
 				panic(err)
@@ -90,22 +89,35 @@ func (patcher Patcher) PatchDependencies(dependenciesToPatch map[string][]patchi
 	return patcher.patching_info
 }
 
-// addFixedVersions records, for each occurrence, the version of its package that ends it.
-// That is the version resolved under the upgrade (name -> version), or else the advisory's fix.
-// An occurrence with neither gets no entry.
-func addFixedVersions(patches map[string]versions.Semver, occurrences []patching.ToPatch, resolved map[string]string) {
-	for _, occurrence := range occurrences {
+// fixedVersions gives, for each occurrence's package version, the version that ends it.
+// A patchable occurrence takes the version its package resolves to under the upgrade (name -> version).
+// Any other occurrence, or one whose package is not in that tree, takes its advisory's fix;
+// when several advisories hit one package version, the highest fix is kept, since only it ends all of them.
+// A resolved version is never replaced by an advisory's fix. A package version with neither gets no entry.
+func fixedVersions(patchable, unpatchable []patching.ToPatch, resolved map[string]string) map[string]versions.Semver {
+	patches := map[string]versions.Semver{}
+	fromUpgrade := map[string]bool{}
+	for _, occurrence := range patchable {
 		key := occurrence.DependencyName + "@" + occurrence.DependencyVersion
-		if version, ok := resolved[occurrence.DependencyName]; ok && version != occurrence.DependencyVersion {
-			if parsed, err := semver.ParseSemver(version); err == nil {
-				patches[key] = parsed
-				continue
-			}
+		version, ok := resolved[occurrence.DependencyName]
+		if !ok || version == occurrence.DependencyVersion {
+			continue
 		}
-		if occurrence.AdvisoryFix != nil {
+		if parsed, err := semver.ParseSemver(version); err == nil {
+			patches[key] = parsed
+			fromUpgrade[key] = true
+		}
+	}
+	for _, occurrence := range append(append([]patching.ToPatch{}, patchable...), unpatchable...) {
+		key := occurrence.DependencyName + "@" + occurrence.DependencyVersion
+		if fromUpgrade[key] || occurrence.AdvisoryFix == nil {
+			continue
+		}
+		if current, ok := patches[key]; !ok || occurrence.AdvisoryFix.Compare(current, false) > 0 {
 			patches[key] = *occurrence.AdvisoryFix
 		}
 	}
+	return patches
 }
 
 func generatePatchingResult(vulnerabilities []patching.ToPatch, toPatch []patching.ToPatch) ([]patching.ToPatch, []patching.ToPatch, []patching.ToPatch) {
