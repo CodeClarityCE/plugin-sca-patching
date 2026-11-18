@@ -58,6 +58,8 @@ type ToPatch struct {
 	Vulnerability     Vulnerability
 	// AdvisoryFix is the fixed version the advisory names for this occurrence, if any.
 	AdvisoryFix *versions.Semver `json:"-"`
+	// Identifiers are every id this vulnerability is known by: canonical id, source records and aliases.
+	Identifiers []string `json:"-"`
 }
 
 // Vulnerability is the part of a vuln-finder vulnerability that readers of a patch use.
@@ -104,6 +106,8 @@ type PatchInfo struct {
 	Introduced         []ToPatch
 	Patches            map[string]versions.Semver
 	Update             versions.Semver
+	// PotentiallyBreaking is true when Update is in a later major version than the installed one.
+	PotentiallyBreaking bool
 }
 
 type Workspace struct {

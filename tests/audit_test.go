@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/CodeClarityCE/plugin-sca-patching/internal/knowledgetest"
 	patching "github.com/CodeClarityCE/plugin-sca-patching/src"
+	"github.com/CodeClarityCE/plugin-sca-patching/src/patch"
 	"github.com/CodeClarityCE/utility-node-semver/versions"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +26,8 @@ func TestPatchesProjectWithVulnerabilities(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, vulns.WorkSpaces["."].Vulnerabilities)
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	require.Equal(t, codeclarity.SUCCESS, out.AnalysisInfo.Status)
 	patches := out.WorkSpaces["."].Patches
@@ -46,6 +49,18 @@ func TestPatchesProjectWithVulnerabilities(t *testing.T) {
 	minimum := versions.Semver{Major: 4, Minor: 17, Patch: 12}
 	assert.GreaterOrEqual(t, lodash.Update.Compare(minimum, false), 0, "lodash upgrade %s is still vulnerable", lodash.Update.String())
 
+	// node-forge's NVD product is "forge", so only OSV matching sees it; the upgrade must be clean by both.
+	forge, ok := patches["node-forge@0.9.0"]
+	require.True(t, ok, "expected a patch entry for node-forge@0.9.0, got %v", keys(patches))
+	assert.Equal(t, "FULL", forge.IsPatchable)
+	assert.Empty(t, forge.Unpatchable)
+	assert.Empty(t, forge.Introduced)
+
+	// A fix outside the installed major is flagged as potentially breaking.
+	axios, ok := patches["axios@0.18.0"]
+	require.True(t, ok, "expected a patch entry for axios@0.18.0, got %v", keys(patches))
+	assert.Equal(t, axios.Update.Major != 0, axios.PotentiallyBreaking, "axios upgrade %s", axios.Update.String())
+
 	for name, patch := range patches {
 		assert.Contains(t, []string{"FULL", "PARTIAL", "NONE"}, patch.IsPatchable, "patch %s", name)
 	}
@@ -59,7 +74,8 @@ func TestPatchesProjectWithoutVulnerabilities(t *testing.T) {
 	vulns, err := getVulns("fixtures/audit-clean-js")
 	require.NoError(t, err)
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	require.Equal(t, codeclarity.SUCCESS, out.AnalysisInfo.Status)
 	require.Contains(t, out.WorkSpaces, ".")
