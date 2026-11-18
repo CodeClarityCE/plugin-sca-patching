@@ -1,6 +1,7 @@
 package patching
 
 import (
+	"context"
 	"time"
 
 	outputGenerator "github.com/CodeClarityCE/plugin-sca-patching/src/outputGenerator"
@@ -13,10 +14,11 @@ import (
 	"github.com/uptrace/bun"
 
 	sbomTypes "github.com/CodeClarityCE/plugin-sbom-javascript/src/types/sbom/js"
-	"github.com/CodeClarityCE/plugin-sca-patching/src/types"
 )
 
-func Start(knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.Output, languageId string, start time.Time) patching.Output {
+// Start finds the upgrades for the sbom's vulnerable dependencies. A failed knowledge lookup returns
+// a failed output and a patch.ErrKnowledgeLookup error, whose text must not be shown to users.
+func Start(ctx context.Context, knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.Output, languageId string, start time.Time, options patch.Options) (patching.Output, error) {
 	// Check if the previous stage was successful
 	if sbom.AnalysisInfo.Status != codeclarity.SUCCESS {
 		// Add an error to the exception manager
@@ -27,18 +29,14 @@ func Start(knowledge *bun.DB, sbom sbomTypes.Output, vulns vulnerabilityFinder.O
 			exceptions.PREVIOUS_STAGE_FAILED,
 		)
 		// Return a failure output
-		return outputGenerator.FailureOutput(sbom.AnalysisInfo, start)
+		return outputGenerator.FailureOutput(sbom.AnalysisInfo, start), nil
 	}
 
-	// Initialize the patcher with specific upgrade policies
-	upgradePolicy := types.UpgradePolicy{
-		VersionSelectionPreference: types.SELECT_NEWEST,
-		PartialFixVersionSelection: types.SELECT_LOWEST_AVERAGE_SEVERITY,
-		AllowDowngrades:            false,
+	workSpaceData, err := patch.InitializePatcher(knowledge, sbom, vulns, options).PatchApplication(ctx)
+	if err != nil {
+		return outputGenerator.FailureOutput(sbom.AnalysisInfo, start), err
 	}
-
-	workSpaceData := patch.InitializePatcher(upgradePolicy, knowledge, sbom, vulns).PatchApplication()
 
 	// Return a success output with the patched data
-	return outputGenerator.SuccessOutput(workSpaceData, sbom.AnalysisInfo, start)
+	return outputGenerator.SuccessOutput(workSpaceData, sbom.AnalysisInfo, start), nil
 }

@@ -60,26 +60,6 @@ type UnPatchedVersionInternal struct {
 	UpgradedVersion          semverVersionTypes.Semver
 }
 
-type VersionSelectionPreference string
-
-const (
-	SELECT_NEWEST = "SELECT_NEWEST"
-	SELECT_OLDEST = "SELECT_OLDEST"
-)
-
-type PartialFixVersionSelection string
-
-const (
-	SELECT_LOWEST_MAX_SEVERITY     = "SELECT_LOWEST_MAX_SEVERITY"
-	SELECT_LOWEST_AVERAGE_SEVERITY = "SELECT_LOWEST_AVERAGE_SEVERITY"
-)
-
-type UpgradePolicy struct {
-	AllowDowngrades            bool
-	PartialFixVersionSelection PartialFixVersionSelection
-	VersionSelectionPreference VersionSelectionPreference
-}
-
 type VulnerabilityOccurencePatchInfo struct {
 	PatchType                 patching.PatchType                `json:"patch_type"`
 	DirectDepInstalledVersion string                            `json:"direct_dep_installed_version"`

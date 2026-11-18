@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/CodeClarityCE/plugin-sca-patching/internal/knowledgetest"
 	patching "github.com/CodeClarityCE/plugin-sca-patching/src"
+	"github.com/CodeClarityCE/plugin-sca-patching/src/patch"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateNPMv1(t *testing.T) {
@@ -23,7 +26,8 @@ func TestCreateNPMv1(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -44,7 +48,8 @@ func TestCreateNPMv2(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -65,7 +70,8 @@ func TestCreateYarnv1(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -86,7 +92,8 @@ func TestCreateYarnv2(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -107,7 +114,8 @@ func TestCreateYarnv3(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	// Assert the expected values
 	assert.NotNil(t, out)
@@ -128,7 +136,8 @@ func TestCreateYarnv4(t *testing.T) {
 		t.Errorf("Error getting mock SBOM: %v", err)
 	}
 
-	out := patching.Start(knowledge, sbom, vulns, "JS", time.Now())
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
 
 	// Assert the expected values
 	assert.NotNil(t, out)

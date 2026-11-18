@@ -55,7 +55,47 @@ type ToPatch struct {
 	DependencyName    string
 	DependencyVersion string
 	Path              []string
-	Vulnerability     vulnerabilityFinder.Vulnerability
+	Vulnerability     Vulnerability
+	// AdvisoryFix is the fixed version the advisory names for this occurrence, if any.
+	AdvisoryFix *versions.Semver `json:"-"`
+	// Identifiers are every id this vulnerability is known by: canonical id, source records and aliases.
+	Identifiers []string `json:"-"`
+}
+
+// Vulnerability is the part of a vuln-finder vulnerability that readers of a patch use.
+// Field names match vuln-finder's, so the JSON keys are unchanged.
+type Vulnerability struct {
+	VulnerabilityId    string
+	AffectedDependency string
+	AffectedVersion    string
+	Severity           Severity
+}
+
+// Severity is the part of vuln-finder's severity that readers of a patch use.
+type Severity struct {
+	Severity              float64
+	SeverityType          vulnerabilityFinder.SeverityType
+	Vector                string
+	ConfidentialityImpact string
+	IntegrityImpact       string
+	AvailabilityImpact    string
+}
+
+// TrimVulnerability keeps the fields of v that readers of a patch use.
+func TrimVulnerability(v vulnerabilityFinder.Vulnerability) Vulnerability {
+	return Vulnerability{
+		VulnerabilityId:    v.VulnerabilityId,
+		AffectedDependency: v.AffectedDependency,
+		AffectedVersion:    v.AffectedVersion,
+		Severity: Severity{
+			Severity:              v.Severity.Severity,
+			SeverityType:          v.Severity.SeverityType,
+			Vector:                v.Severity.Vector,
+			ConfidentialityImpact: v.Severity.ConfidentialityImpact,
+			IntegrityImpact:       v.Severity.IntegrityImpact,
+			AvailabilityImpact:    v.Severity.AvailabilityImpact,
+		},
+	}
 }
 
 type PatchInfo struct {
@@ -66,6 +106,8 @@ type PatchInfo struct {
 	Introduced         []ToPatch
 	Patches            map[string]versions.Semver
 	Update             versions.Semver
+	// PotentiallyBreaking is true when Update is in a later major version than the installed one.
+	PotentiallyBreaking bool
 }
 
 type Workspace struct {

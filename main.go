@@ -9,16 +9,16 @@ import (
 
 	sbomTypes "github.com/CodeClarityCE/plugin-sbom-javascript/src/types/sbom/js"
 	plugin "github.com/CodeClarityCE/plugin-sca-patching/src"
+	"github.com/CodeClarityCE/plugin-sca-patching/src/patch"
 	"github.com/CodeClarityCE/plugin-sca-patching/src/types/patching"
 	vulnerabilityFinder "github.com/CodeClarityCE/plugin-sca-vuln-finder/src/types"
 	"github.com/CodeClarityCE/utility-boilerplates"
 	dbhelper "github.com/CodeClarityCE/utility-dbhelper/helper"
 	types_amqp "github.com/CodeClarityCE/utility-types/amqp"
 	codeclarity "github.com/CodeClarityCE/utility-types/codeclarity_db"
-	"github.com/CodeClarityCE/utility-types/exceptions"
-	exceptionManager "github.com/CodeClarityCE/utility-types/exceptions"
 	plugin_db "github.com/CodeClarityCE/utility-types/plugin_db"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 // JSPatchingAnalysisHandler implements the AnalysisHandler interface
@@ -50,64 +50,78 @@ func main() {
 	}
 }
 
-// startAnalysis is a function that performs the analysis for a specific plugin.
-// It takes the following parameters:
-// - args: Arguments for the plugin.
-// - dispatcherMessage: DispatcherPluginMessage containing information about the plugin message.
-// - config: Plugin configuration.
-// - analysis_document: Analysis document containing information about the analysis.
-// It returns a map[string]any containing the result of the analysis, the analysis status, and an error if any.
-func startAnalysis(databases *boilerplates.PluginDatabases, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
-	// Prepare the arguments for the plugin
+const (
+	knowledgeLookupReason = "the vulnerability database could not be read, try the analysis again"
+	missingSbomReason     = "the dependency list could not be read"
+	missingVulnsReason    = "the vulnerability results could not be read"
+	saveReason            = "the patching results could not be saved"
+)
 
-	// Get sbomKey from previous stage
-	sbomKey := uuid.UUID{}
-	vulnKey := uuid.UUID{}
-	for _, stage := range analysis_document.Steps {
+// stepFailure logs the raw cause and returns a failed step that carries a readable reason.
+func stepFailure(log *logrus.Entry, reason string, cause error) (map[string]any, codeclarity.AnalysisStatus, error) {
+	log.WithError(cause).Error("Patching failed: " + reason)
+	return map[string]any{codeclarity.StepFailureReasonKey: reason}, codeclarity.FAILURE, nil
+}
+
+// previousResults reads the js-sbom and vuln-finder result keys, and the knowledge date vuln-finder used.
+// On error, reason says which result could not be read.
+func previousResults(analysis codeclarity.Analysis) (sbomKey, vulnKey uuid.UUID, knowledgeAsOf *time.Time, reason string, err error) {
+	for _, stage := range analysis.Steps {
 		for _, step := range stage {
-			if step.Name == "js-sbom" {
-				sbomKeyUUID, err := uuid.Parse(step.Result["sbomKey"].(string))
-				if err != nil {
-					panic(err)
+			switch step.Name {
+			case "js-sbom":
+				raw, _ := step.Result["sbomKey"].(string)
+				if sbomKey, err = uuid.Parse(raw); err != nil {
+					return sbomKey, vulnKey, nil, missingSbomReason, fmt.Errorf("invalid js-sbom key %q: %w", raw, err)
 				}
-				sbomKey = sbomKeyUUID
-				break
-			} else if step.Name == "vuln-finder" {
-				vulnKeyUUID, err := uuid.Parse(step.Result["vulnKey"].(string))
-				if err != nil {
-					panic(err)
+			case "vuln-finder":
+				raw, _ := step.Result["vulnKey"].(string)
+				if vulnKey, err = uuid.Parse(raw); err != nil {
+					return sbomKey, vulnKey, nil, missingVulnsReason, fmt.Errorf("invalid vuln-finder key %q: %w", raw, err)
 				}
-				vulnKey = vulnKeyUUID
-				break
+				if asOf, ok := step.Result["knowledgeAsOf"].(string); ok && asOf != "" {
+					parsed, err := time.Parse("2006-01-02", asOf)
+					if err != nil {
+						return sbomKey, vulnKey, nil, missingVulnsReason, fmt.Errorf("invalid vuln-finder knowledgeAsOf %q: %w", asOf, err)
+					}
+					knowledgeAsOf = &parsed
+				}
 			}
 		}
 	}
+	return sbomKey, vulnKey, knowledgeAsOf, "", nil
+}
 
-	var patchingOutput patching.Output
+// startAnalysis finds the upgrades for the vulnerabilities vuln-finder reported on the js-sbom result.
+func startAnalysis(databases *boilerplates.PluginDatabases, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
+	log := logrus.WithField("analysis_id", dispatcherMessage.AnalysisId.String())
+	ctx := context.Background()
+
+	sbomKey, vulnKey, knowledgeAsOf, reason, err := previousResults(analysis_document)
+	if err != nil {
+		return stepFailure(log, reason, err)
+	}
 
 	start := time.Now()
 
-	// Retrieve the sbom from the previous stage
-	sbom, err := getSbom(sbomKey, databases)
+	sbom, err := getSbom(ctx, sbomKey, databases)
 	if err != nil {
-		exceptionManager.AddError(
-			"", exceptions.GENERIC_ERROR,
-			fmt.Sprintf("Error when reading sbom output: %s", err), exceptions.FAILED_TO_READ_PREVIOUS_STAGE_OUTPUT,
-		)
-		return nil, codeclarity.FAILURE, err
+		return stepFailure(log, missingSbomReason, err)
+	}
+	vulns, err := getVulns(ctx, vulnKey, databases)
+	if err != nil {
+		return stepFailure(log, missingVulnsReason, err)
 	}
 
-	// Retrieve the vulnerabilities from the previous stage
-	vulns, err := getVulns(vulnKey, databases)
+	patchingOutput, err := plugin.Start(ctx, databases.Knowledge, sbom, vulns, dbhelper.Config.Collection.JS, start, patch.Options{
+		Log:           log,
+		KnowledgeAsOf: knowledgeAsOf,
+	})
+	failureReason := ""
 	if err != nil {
-		exceptionManager.AddError(
-			"", exceptions.GENERIC_ERROR,
-			fmt.Sprintf("Error when reading vulns output: %s", err), exceptions.FAILED_TO_READ_PREVIOUS_STAGE_OUTPUT,
-		)
-		return nil, codeclarity.FAILURE, err
+		log.WithError(err).Error("Patching failed: " + knowledgeLookupReason)
+		failureReason = knowledgeLookupReason
 	}
-
-	patchingOutput = plugin.Start(databases.Knowledge, sbom, vulns, dbhelper.Config.Collection.JS, start)
 
 	patch_result := codeclarity.Result{
 		Result:     patching.ConvertOutputToMap(patchingOutput),
@@ -115,45 +129,45 @@ func startAnalysis(databases *boilerplates.PluginDatabases, dispatcherMessage ty
 		Plugin:     config.Name,
 		CreatedOn:  time.Now(),
 	}
-	_, err = databases.Codeclarity.NewInsert().Model(&patch_result).Exec(context.Background())
-	if err != nil {
-		panic(err)
+	if _, err := databases.Codeclarity.NewInsert().Model(&patch_result).Exec(ctx); err != nil {
+		if failureReason == "" {
+			failureReason = saveReason
+		}
+		return stepFailure(log, failureReason, fmt.Errorf("failed to insert patching result: %w", err))
 	}
 
-	// Prepare the result to store in step
-	// In this case we only store the sbomKey
-	// The other plugins will use this key to get the sbom
-	result := make(map[string]any)
-	result["patchKey"] = patch_result.Id
-
-	// The output is always a map[string]any
+	// Later plugins read the result by its key.
+	result := map[string]any{"patchKey": patch_result.Id}
+	if failureReason != "" {
+		result[codeclarity.StepFailureReasonKey] = failureReason
+	}
 	return result, patchingOutput.AnalysisInfo.Status, nil
 }
 
-func getVulns(vulnsKey uuid.UUID, databases *boilerplates.PluginDatabases) (vulnerabilityFinder.Output, error) {
-	res := codeclarity.Result{
-		Id: vulnsKey,
+func getVulns(ctx context.Context, vulnsKey uuid.UUID, databases *boilerplates.PluginDatabases) (vulnerabilityFinder.Output, error) {
+	res := codeclarity.Result{Id: vulnsKey}
+	if err := databases.Codeclarity.NewSelect().Model(&res).Where("id = ?", vulnsKey).Scan(ctx); err != nil {
+		return vulnerabilityFinder.Output{}, err
 	}
-	err := databases.Codeclarity.NewSelect().Model(&res).Where("id = ?", vulnsKey).Scan(context.Background())
-	if err != nil {
-		panic(err)
+	raw, ok := res.Result.([]byte)
+	if !ok {
+		return vulnerabilityFinder.Output{}, fmt.Errorf("vuln-finder result %s is %T", vulnsKey, res.Result)
 	}
 	vulns := vulnerabilityFinder.Output{}
-	err = json.Unmarshal(res.Result.([]byte), &vulns)
-
+	err := json.Unmarshal(raw, &vulns)
 	return vulns, err
 }
 
-func getSbom(sbomKey uuid.UUID, databases *boilerplates.PluginDatabases) (sbomTypes.Output, error) {
-	res := codeclarity.Result{
-		Id: sbomKey,
+func getSbom(ctx context.Context, sbomKey uuid.UUID, databases *boilerplates.PluginDatabases) (sbomTypes.Output, error) {
+	res := codeclarity.Result{Id: sbomKey}
+	if err := databases.Codeclarity.NewSelect().Model(&res).Where("id = ?", sbomKey).Scan(ctx); err != nil {
+		return sbomTypes.Output{}, err
 	}
-	err := databases.Codeclarity.NewSelect().Model(&res).Where("id = ?", sbomKey).Scan(context.Background())
-	if err != nil {
-		panic(err)
+	raw, ok := res.Result.([]byte)
+	if !ok {
+		return sbomTypes.Output{}, fmt.Errorf("js-sbom result %s is %T", sbomKey, res.Result)
 	}
 	sbom := sbomTypes.Output{}
-	err = json.Unmarshal(res.Result.([]byte), &sbom)
-
+	err := json.Unmarshal(raw, &sbom)
 	return sbom, err
 }
