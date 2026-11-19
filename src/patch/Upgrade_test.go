@@ -48,6 +48,17 @@ func (f fakeAdvisories) GCVE(context.Context, string) ([]knowledge_db.GCVEItem, 
 	return nil, f.err
 }
 
+// The by-ID lookups find nothing, so only the OSV records above match.
+func (f fakeAdvisories) OSVByID(context.Context, []string) ([]knowledge_db.OSVItem, error) {
+	return nil, f.err
+}
+func (f fakeAdvisories) NVDByID(context.Context, []string) ([]knowledge_db.NVDItem, error) {
+	return nil, f.err
+}
+func (f fakeAdvisories) GCVEByID(context.Context, []string) ([]knowledge_db.GCVEItem, error) {
+	return nil, f.err
+}
+
 // osvAdvisory affects name from introduced up to, not including, fixed.
 func osvAdvisory(id, name, introduced, fixed string, aliases ...string) knowledge_db.OSVItem {
 	return knowledge_db.OSVItem{
