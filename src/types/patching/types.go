@@ -57,7 +57,7 @@ type ToPatch struct {
 	Path              []string
 	Vulnerability     Vulnerability
 	// AdvisoryFix is the fixed version the advisory names for this occurrence, if any.
-	AdvisoryFix *versions.Semver `json:"-"`
+	AdvisoryFix *versions.Semver `json:"AdvisoryFix,omitempty"`
 	// Identifiers are every id this vulnerability is known by: canonical id, source records and aliases.
 	Identifiers []string `json:"-"`
 }
