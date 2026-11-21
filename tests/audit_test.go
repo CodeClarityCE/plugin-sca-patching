@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -89,4 +90,42 @@ func keys[V any](m map[string]V) []string {
 		out = append(out, k)
 	}
 	return out
+}
+
+// The stored output carries each occurrence's advisory fix, so readers need no knowledge lookup.
+func TestOutputSerializesAdvisoryFix(t *testing.T) {
+	knowledge := knowledgetest.Open(t)
+
+	sbom, err := getSBOM("fixtures/audit-vuln-js")
+	require.NoError(t, err)
+	vulns, err := getVulns("fixtures/audit-vuln-js")
+	require.NoError(t, err)
+
+	out, err := patching.Start(context.Background(), knowledge, sbom, vulns, "JS", time.Now(), patch.Options{})
+	require.NoError(t, err)
+
+	encoded, err := json.Marshal(out)
+	require.NoError(t, err)
+	var stored struct {
+		WorkSpaces map[string]struct {
+			Patches map[string]struct {
+				Patchable, Unpatchable []struct {
+					Vulnerability struct{ VulnerabilityId string }
+					AdvisoryFix   *struct{ Major, Minor, Patch int }
+				}
+			} `json:"patches"`
+		} `json:"workspaces"`
+	}
+	require.NoError(t, json.Unmarshal(encoded, &stored))
+
+	lodash := stored.WorkSpaces["."].Patches["lodash@4.17.4"]
+	fixes := map[string]any{}
+	for _, occurrence := range append(lodash.Patchable, lodash.Unpatchable...) {
+		if occurrence.AdvisoryFix != nil {
+			fixes[occurrence.Vulnerability.VulnerabilityId] = *occurrence.AdvisoryFix
+		}
+	}
+	// lodash's CVE-2019-10744 is fixed in 4.17.12 and CVE-2021-23337 in 4.17.21.
+	assert.Equal(t, struct{ Major, Minor, Patch int }{4, 17, 12}, fixes["CVE-2019-10744"])
+	assert.Equal(t, struct{ Major, Minor, Patch int }{4, 17, 21}, fixes["CVE-2021-23337"])
 }
